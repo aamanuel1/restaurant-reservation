@@ -11,7 +11,7 @@
 .mtj.tmp/
 
 # Package Files #
-*.jar
+# *.jar // We have jar files for JADE in /lib
 *.war
 *.nar
 *.ear

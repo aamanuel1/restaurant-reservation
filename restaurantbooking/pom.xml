@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>3.1.5</version>
+		<relativePath/> <!-- lookup parent from repository -->
+	</parent>
+	<groupId>com.project</groupId>
+	<artifactId>restaurantbooking</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>restaurantbooking</name>
+	<description>Spring Boot setup for Restaurant Reservation System</description>
+	<properties>
+		<java.version>17</java.version>
+	</properties>
+
+	<!--Repository and dependency setup from https://jade-project.gitlab.io/page/download/
+	Note this is Jade 4.5.3 not 4.6.0.-->
+<!--	<repositories>-->
+<!--		<repository>-->
+<!--			<id>jitpack.io</id>-->
+<!--			<url>https://jitpack.io</url>-->
+<!--		</repository>-->
+		<!--Official JADE repository 4.6.0, but it doesn't work for some reason. Included in case of fixing.-->
+<!--		<repository>-->
+<!--			<id>tilab</id>-->
+<!--			<url>https://jade.tilab.com/maven/</url>-->
+<!--		</repository>-->
+<!--	</repositories>-->
+
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-jpa</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web-services</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.session</groupId>
+			<artifactId>spring-session-core</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-docker-compose</artifactId>
+			<scope>runtime</scope>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>com.mysql</groupId>
+			<artifactId>mysql-connector-j</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.postgresql</groupId>
+			<artifactId>postgresql</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<!--JADE dependencies, because Jade repository doesn't work, the jar files are in the lib folder in
+		root project directory.-->
+		<dependency>
+			<groupId>com.tilab.jade</groupId>
+			<artifactId>jade</artifactId>
+			<version>4.6.0</version>
+			<scope>system</scope>
+			<systemPath>${project.basedir}/lib/jade-4.6.0.jar</systemPath>
+		</dependency>
+		<dependency>
+			<groupId>com.tilab.jade</groupId>
+			<artifactId>jade-misc</artifactId>
+			<version>2.9.0</version>
+			<scope>system</scope>
+			<systemPath>${project.basedir}/lib/jade-misc-2.9.0.jar</systemPath>
+		</dependency>
+		<dependency>
+			<groupId>com.tilab.jade</groupId>
+			<artifactId>jade-test-suite</artifactId>
+			<version>1.14.0</version>
+			<scope>system</scope>
+			<systemPath>${project.basedir}/lib/jade-test-suite-1.14.0.jar</systemPath>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+				<configuration>
+					<excludes>
+						<exclude>
+							<groupId>org.projectlombok</groupId>
+							<artifactId>lombok</artifactId>
+						</exclude>
+					</excludes>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>

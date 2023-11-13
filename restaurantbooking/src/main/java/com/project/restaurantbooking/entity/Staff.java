@@ -11,6 +11,9 @@ import java.io.Serializable;
 @Getter @Setter
 @NoArgsConstructor
 @Table(name = "staff")
+/**Staff entity class for establishing the database.
+ *
+ */
 public class Staff implements Serializable {
 
     @Id
@@ -31,6 +34,17 @@ public class Staff implements Serializable {
     private String password;
 
 
+    /**
+     * Constructor with manual staff ID argument
+     * Parameters are self commenting.
+     * @param staffId
+     * @param restaurantID
+     * @param firstName
+     * @param lastName
+     * @param username
+     * @param isAdmin
+     * @param password
+     */
     public Staff(Long staffId, Long restaurantID, String firstName, String lastName, String username, boolean isAdmin, String password){
         this.staffId = staffId;
         this.restaurantID = restaurantID;
@@ -41,6 +55,15 @@ public class Staff implements Serializable {
         this.password = password;
     }
 
+    /**
+     * Constructor for automatic sequential staff ID assignment by the database.
+     * @param restaurantID
+     * @param firstName
+     * @param lastName
+     * @param username
+     * @param isAdmin
+     * @param password
+     */
     public Staff(Long restaurantID, String firstName, String lastName, String username, boolean isAdmin, String password){
         this.restaurantID = restaurantID;
         this.firstName = firstName;
@@ -49,7 +72,5 @@ public class Staff implements Serializable {
         this.isAdmin = isAdmin;
         this.password = password;
     }
-
-
 
 }

@@ -17,7 +17,7 @@ import java.util.Optional;
 @Service
 public class StaffAgent extends Agent {
 
-    private final StaffRepository staffRepository;
+    protected final StaffRepository staffRepository;
 
     public StaffAgent(){
         this.staffRepository = null;
@@ -66,10 +66,10 @@ public class StaffAgent extends Agent {
         }
     }
 
-    public Optional<Staff> authenticate(String username, String password){
+    public StaffAgent authenticate(String username, String password){
         Optional<Staff> authStaff = staffRepository.findByUsername(username);
         if(authStaff.get().getPassword().equals(password))
-            return authStaff;
+            return this;
         else
             return null;
     }

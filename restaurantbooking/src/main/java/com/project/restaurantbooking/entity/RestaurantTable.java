@@ -1,5 +1,6 @@
 package com.project.restaurantbooking.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -7,11 +8,13 @@ import lombok.Setter;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Getter @Setter
 @NoArgsConstructor
-@Table(name = "table")
+@Table(name = "restaurant_table")
 public class RestaurantTable implements Serializable {
 
     @Id
@@ -19,28 +22,34 @@ public class RestaurantTable implements Serializable {
     @Column(name = "table_id")
     private Long tableId;
 
-    private Long restaurantID;
-
     private int tableOccupancyNum;
 
     private boolean available;
 
-    private ArrayList<Shift> timeslots;
+    @ManyToOne
+    @JoinColumn(name = "restaurant_id")
+    private Restaurant restaurant;
 
-    public RestaurantTable(Long tableId, Long restaurantID, int tableOccupancyNum, boolean available, ArrayList<Shift> timeslots) {
+    @JsonIgnore
+    @OneToMany(mappedBy = "table")
+    private Set<Shift> timeslots = new HashSet<Shift>();
+
+    public RestaurantTable(Long tableId, Restaurant restaurant, int tableOccupancyNum, boolean available) {
         this.tableId = tableId;
-        this.restaurantID = restaurantID;
+        this.restaurant = restaurant;
         this.tableOccupancyNum = tableOccupancyNum;
         this.available = available;
-        this.timeslots = timeslots;
     }
 
-    public RestaurantTable(Long restaurantID, int tableOccupancyNum, boolean available, ArrayList<Shift> timeslots) {
-        this.restaurantID = restaurantID;
+    public RestaurantTable(Restaurant restaurant, int tableOccupancyNum, boolean available, ArrayList<Shift> timeslots) {
+        this.restaurant = restaurant;
         this.tableOccupancyNum = tableOccupancyNum;
         this.available = available;
-        this.timeslots = timeslots;
     }
 
-
+    public RestaurantTable(Restaurant restaurant, int tableOccupancyNum, boolean available) {
+        this.restaurant = restaurant;
+        this.tableOccupancyNum = tableOccupancyNum;
+        this.available = available;
+    }
 }

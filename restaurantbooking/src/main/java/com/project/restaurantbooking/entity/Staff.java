@@ -1,5 +1,6 @@
 package com.project.restaurantbooking.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -8,6 +9,8 @@ import jakarta.persistence.Table;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Getter @Setter
@@ -23,7 +26,13 @@ public class Staff implements Serializable {
     @Column(name = "staff_id")
     private Long staffId;
 
-    private Long restaurantID;
+    @ManyToOne
+    @JoinColumn(name = "restaurant_id")
+    private Restaurant restaurant;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "staff")
+    private Set<Shift> shifts = new HashSet<Shift>();
 
     private String firstName;
 
@@ -40,16 +49,16 @@ public class Staff implements Serializable {
      * Constructor with manual staff ID argument
      * Parameters are self commenting.
      * @param staffId
-     * @param restaurantID
+     * @param restaurant
      * @param firstName
      * @param lastName
      * @param username
      * @param isAdmin
      * @param password
      */
-    public Staff(Long staffId, Long restaurantID, String firstName, String lastName, String username, boolean isAdmin, String password){
+    public Staff(Long staffId, Restaurant restaurant, String firstName, String lastName, String username, boolean isAdmin, String password){
         this.staffId = staffId;
-        this.restaurantID = restaurantID;
+        this.restaurant = restaurant;
         this.firstName = firstName;
         this.lastName = lastName;
         this.username = username;
@@ -59,15 +68,15 @@ public class Staff implements Serializable {
 
     /**
      * Constructor for automatic sequential staff ID assignment by the database.
-     * @param restaurantID
+     * @param restaurant
      * @param firstName
      * @param lastName
      * @param username
      * @param isAdmin
      * @param password
      */
-    public Staff(Long restaurantID, String firstName, String lastName, String username, boolean isAdmin, String password){
-        this.restaurantID = restaurantID;
+    public Staff(Restaurant restaurant, String firstName, String lastName, String username, boolean isAdmin, String password){
+        this.restaurant = restaurant;
         this.firstName = firstName;
         this.lastName = lastName;
         this.username = username;

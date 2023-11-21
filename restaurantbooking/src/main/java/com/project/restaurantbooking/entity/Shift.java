@@ -8,6 +8,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import java.io.Serializable;
 import java.sql.Date;
+import java.time.LocalDate;
 
 @Entity
 @Getter @Setter
@@ -20,32 +21,32 @@ public class Shift implements Serializable {
     @Column(name = "shift_id")
     private Long shiftId;
 
-    private Long staffId;
+    @ManyToOne
+    @JoinColumn(name = "staff_id")
+    private Staff staff;
 
-    private Long restaurantId;
-
-    private Long tableId;
+    @ManyToOne
+    @JoinColumn(name = "table_id")
+    private RestaurantTable table;
 
     private Date date;
 
-    private DateTimeFormat startTime;
+    private LocalDate startTime;
 
-    private DateTimeFormat endTime;
+    private LocalDate endTime;
 
-    public Shift(Long shiftId, Long staffId, Long restaurantId, Long tableId, Date date, DateTimeFormat startTime, DateTimeFormat endTime) {
+    public Shift(Long shiftId, Staff staff, RestaurantTable restaurantTable, Date date, LocalDate startTime, LocalDate endTime) {
         this.shiftId = shiftId;
-        this.staffId = staffId;
-        this.restaurantId = restaurantId;
-        this.tableId = tableId;
+        this.staff = staff;
+        this.table = table;
         this.date = date;
         this.startTime = startTime;
         this.endTime = endTime;
     }
 
-    public Shift(Long restaurantId, Long tableId, Date date, DateTimeFormat startTime, DateTimeFormat endTime) {
-        this.staffId = null;
-        this.restaurantId = restaurantId;
-        this.tableId = tableId;
+    public Shift(RestaurantTable table, Date date, LocalDate startTime, LocalDate endTime) {
+        this.staff = null;
+        this.table = table;
         this.date = date;
         this.startTime = startTime;
         this.endTime = endTime;

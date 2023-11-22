@@ -2,6 +2,7 @@ package com.project.restaurantbooking.controller;
 
 import com.project.restaurantbooking.agent.AdminStaffAgent;
 import com.project.restaurantbooking.agent.StaffAgent;
+import com.project.restaurantbooking.entity.Shift;
 import com.project.restaurantbooking.entity.Staff;
 import jade.core.*;
 import jade.core.Agent;
@@ -13,6 +14,7 @@ import jade.wrapper.StaleProxyException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.Optional;
 
 @RestController
@@ -125,8 +127,27 @@ public class StaffController extends Agent{
                             @RequestParam(required = false) boolean changeAdmin,
                             @RequestParam(required = false) String newPassword){
         Long tempRestaurantID = Long.valueOf(1);
-        Staff staffChange = new Staff(tempRestaurantID,newFirstName, newLastName, newUsername, changeAdmin, newPassword);
+        Staff staffChange = new Staff(null, newFirstName, newLastName, newUsername, changeAdmin, newPassword);
         adminStaffAgent.changeStaffAttributes(staffID, staffChange);
+
+    }
+
+    @PostMapping("api/v1/addtable")
+    public void createTable(@RequestParam Long restaurantId,
+                            @RequestParam int tableOccupancyNum,
+                            @RequestParam boolean available,
+                            @RequestParam(required = false) ArrayList<Shift> timeslots){
+        if(timeslots == null){
+            //use empty timeslots
+            adminStaffAgent.createEmptyTable(restaurantId, tableOccupancyNum, available);
+        }
+        else{
+            adminStaffAgent.createTable(restaurantId, tableOccupancyNum, available, timeslots);
+        }
+    }
+
+    @PostMapping("api/v1/deletetable")
+    public void deleteTable(){
 
     }
 

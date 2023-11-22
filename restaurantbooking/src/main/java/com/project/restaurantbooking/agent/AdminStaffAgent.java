@@ -1,9 +1,12 @@
 package com.project.restaurantbooking.agent;
 
+import com.project.restaurantbooking.entity.RestaurantTable;
+import com.project.restaurantbooking.entity.Shift;
 import com.project.restaurantbooking.entity.Staff;
 import com.project.restaurantbooking.repo.StaffRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Optional;
 
 @Service
@@ -64,6 +67,16 @@ public class AdminStaffAgent extends StaffAgent{
 
     public Optional<Staff> searchStaffById(Long staffId){
         return staffRepository.findUserByStaffId(staffId);
+    }
+
+    public void createEmptyTable(Long restaurantId, int tableOccupancyNum, boolean available){
+        RestaurantTable createdEmptyTable = new RestaurantTable(null, tableOccupancyNum, available);
+        //TODO: implement in scheduling agent, replace restaurantId
+    }
+
+    public void createTable(Long restaurantId, int tableOccupancyNum, boolean available, ArrayList<Shift> timeslots){
+        RestaurantTable createdTable = new RestaurantTable(null, tableOccupancyNum, available, timeslots);
+        //TODO: implement in scheduling agent
     }
 
     public Optional<Staff> searchStaffByUsername(String username){

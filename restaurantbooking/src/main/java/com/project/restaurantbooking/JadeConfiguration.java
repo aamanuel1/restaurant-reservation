@@ -30,7 +30,7 @@ public class JadeConfiguration {
         Profile jadeProfile = new ProfileImpl();
         jadeProfile.setParameter(Profile.CONTAINER_NAME, containerName);
         jadeProfile.setParameter(Profile.GUI, Boolean.toString(showGui));
-        jadeProfile.setParameter(Profile.AGENTS, agents);
+//        jadeProfile.setParameter(Profile.AGENTS, agents);
         jadeProfile.setParameter(Profile.MAIN_HOST, "localhost");
         jadeProfile.setParameter(Profile.MAIN_PORT, "1099");
 
@@ -38,6 +38,7 @@ public class JadeConfiguration {
         ContainerController jadeContainer = jadeRuntime.createMainContainer(jadeProfile);
 
         try {
+//            AgentController rmaAgent = jadeContainer.createNewAgent("rma", "jade.tools.rma.rma", new Object[0]);
             AgentController staffAgent = jadeContainer.createNewAgent("staffAgent",
                     "com.project.restaurantbooking.agent.StaffAgent",
                     null);

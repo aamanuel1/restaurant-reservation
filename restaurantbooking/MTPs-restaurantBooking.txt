@@ -1,1 +1,1 @@
-http://node-1w7jr9ydch89iab1gtjak39fz.ipv6.telus.net:40411/acc
+http://node-1w7jr9ydch89iab1gtjak39fz.ipv6.telus.net:7778/acc

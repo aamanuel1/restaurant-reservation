@@ -34,9 +34,9 @@ public class Staff implements Serializable {
 
     private String password;
 
-    @ManyToOne
-    @JoinColumn(name = "restaurant_id", nullable = false)
-    private Restaurant restaurant;
+//    @ManyToOne
+//    @JoinColumn(name = "restaurant_id", nullable = false)
+//    private Restaurant restaurant;
 
     public Staff(String firstName, String lastName, String username, boolean isAdmin, String password) {
         this.firstName = firstName;

@@ -140,34 +140,13 @@ public class DataBaseLoader implements CommandLineRunner {
 
         // adding staff
         Staff staff1 = staffRepository.save(
-                Staff.builder()
-                        .firstName("Worker")
-                        .lastName("One")
-                        .username("worker1")
-                        .password("password")
-                        .isAdmin(true)
-                        .build()
-        );
+                new Staff("Worker", "One", "worker1", true, "password"));
 
         Staff staff2 = staffRepository.save(
-                Staff.builder()
-                        .firstName("Hard")
-                        .lastName("worker")
-                        .username("hard1")
-                        .password("password")
-                        .isAdmin(false)
-                        .build()
-        );
+                new Staff("Hard", "worker", "hard1", false, "password"));
 
         Staff staff3 = staffRepository.save(
-                Staff.builder()
-                        .firstName("Second")
-                        .lastName("InCommand")
-                        .username("2ic")
-                        .password("password")
-                        .isAdmin(false)
-                        .build()
-        );
+                new Staff("Second", "InCommand", "2ic", false, "password"));
 
 
     }

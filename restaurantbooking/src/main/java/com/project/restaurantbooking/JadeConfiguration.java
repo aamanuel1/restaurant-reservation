@@ -1,5 +1,6 @@
 package com.project.restaurantbooking;
 
+import jade.core.Agent;
 import jade.core.Profile;
 import jade.core.ProfileImpl;
 import jade.core.Runtime;
@@ -37,17 +38,23 @@ public class JadeConfiguration {
         //Create container based on the profile.
         ContainerController jadeContainer = jadeRuntime.createMainContainer(jadeProfile);
 
+        staffAgentController(jadeContainer);
+
+        return jadeContainer;
+    }
+
+    @Bean
+    public AgentController staffAgentController(ContainerController container){
         try {
-//            AgentController rmaAgent = jadeContainer.createNewAgent("rma", "jade.tools.rma.rma", new Object[0]);
-            AgentController staffAgent = jadeContainer.createNewAgent("staffAgent",
+            AgentController staffAgent = container.createNewAgent("staffAgent",
                     "com.project.restaurantbooking.agent.StaffAgent",
                     null);
             staffAgent.start();
+            return staffAgent;
         } catch (StaleProxyException e) {
             e.printStackTrace();
         }
-
-        return jadeContainer;
+        return null;
     }
 
 }

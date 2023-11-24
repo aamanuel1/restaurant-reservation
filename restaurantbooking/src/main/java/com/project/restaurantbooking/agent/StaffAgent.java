@@ -41,20 +41,20 @@ public class StaffAgent extends Agent {
         }catch (FIPAException e){
             e.printStackTrace();
         }
-
-        //Check for terminate message
-        addBehaviour(new CyclicBehaviour() {
-            @Override
-            public void action() {
-                ACLMessage msg = receive();
-                if(msg != null && "terminate".equals(msg.getContent())){
-                    doDelete();
-                }
-                else{
-                    block();
-                }
-            }
-        });
+//
+//        //Check for terminate message
+//        addBehaviour(new CyclicBehaviour() {
+//            @Override
+//            public void action() {
+//                ACLMessage msg = receive();
+//                if(msg != null && "terminate".equals(msg.getContent())){
+//                    doDelete();
+//                }
+//                else{
+//                    block();
+//                }
+//            }
+//        });
     }
 
     protected void takeDown(){

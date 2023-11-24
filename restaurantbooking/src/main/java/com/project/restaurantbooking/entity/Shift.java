@@ -1,18 +1,18 @@
 package com.project.restaurantbooking.entity;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.io.Serializable;
 import java.sql.Date;
 import java.time.LocalDate;
 
-@Entity
-@Getter @Setter
+@Data
+@AllArgsConstructor
 @NoArgsConstructor
+@Builder
+@Entity
 @Table(name = "shift")
 public class Shift implements Serializable {
 
@@ -22,11 +22,11 @@ public class Shift implements Serializable {
     private Long shiftId;
 
     @ManyToOne
-    @JoinColumn(name = "staff_id")
+    @JoinColumn(name = "staff_id", nullable = true)
     private Staff staff;
 
     @ManyToOne
-    @JoinColumn(name = "table_id")
+    @JoinColumn(name = "table_id", nullable = true)
     private RestaurantTable table;
 
     private Date date;
@@ -35,17 +35,8 @@ public class Shift implements Serializable {
 
     private LocalDate endTime;
 
-    public Shift(Long shiftId, Staff staff, RestaurantTable restaurantTable, Date date, LocalDate startTime, LocalDate endTime) {
-        this.shiftId = shiftId;
+    public Shift(Staff staff, RestaurantTable table, Date date, LocalDate startTime, LocalDate endTime) {
         this.staff = staff;
-        this.table = table;
-        this.date = date;
-        this.startTime = startTime;
-        this.endTime = endTime;
-    }
-
-    public Shift(RestaurantTable table, Date date, LocalDate startTime, LocalDate endTime) {
-        this.staff = null;
         this.table = table;
         this.date = date;
         this.startTime = startTime;

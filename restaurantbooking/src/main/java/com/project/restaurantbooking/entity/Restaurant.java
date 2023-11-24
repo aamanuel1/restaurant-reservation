@@ -1,19 +1,19 @@
 package com.project.restaurantbooking.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.project.restaurantbooking.enums.Cuisine;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
-@Entity
-@Getter
-@Setter
+@Data
+@AllArgsConstructor
 @NoArgsConstructor
+@Builder
+@Entity
 @Table(name = "restaurant")
 public class Restaurant implements Serializable {
 
@@ -28,29 +28,19 @@ public class Restaurant implements Serializable {
 
     private String postalCode;
 
-    //relationships
-    @JsonIgnore
-    @OneToMany(mappedBy = "restaurant")
-    private Set<Staff> staffMembers = new HashSet<Staff>();
+    @ElementCollection(targetClass = Cuisine.class)
+    @Enumerated(EnumType.STRING)
+    @CollectionTable(name = "restaurant_cuisine", joinColumns = @JoinColumn(name = "restaurant_id"))
+    @Column(name = "cuisine")
+    private Set<Cuisine> cuisines = new HashSet<>();
 
-    @JsonIgnore
-    @OneToMany(mappedBy = "restaurant")
-    private Set<Reservation> reservations = new HashSet<Reservation>();
-
-    @JsonIgnore
-    @OneToMany(mappedBy = "restaurant")
-    private Set<RestaurantTable> restaurantTables = new HashSet<RestaurantTable>();
-
-    public Restaurant(Long restaurantId, String name, String location, String postalCode) {
-        this.restaurantId = restaurantId;
+    public Restaurant(String name, String location, String postalCode, Set<Cuisine> cuisineSet) {
         this.name = name;
         this.location = location;
         this.postalCode = postalCode;
+        this.cuisines = cuisineSet;
     }
 
-    public Restaurant(String name, String location, String postalCode) {
-        this.name = name;
-        this.location = location;
-        this.postalCode = postalCode;
-    }
+
+
 }

@@ -127,7 +127,7 @@ public class StaffController extends Agent{
                             @RequestParam(required = false) boolean changeAdmin,
                             @RequestParam(required = false) String newPassword){
         Long tempRestaurantID = Long.valueOf(1);
-        Staff staffChange = new Staff(null, newFirstName, newLastName, newUsername, changeAdmin, newPassword);
+        Staff staffChange = new Staff(newFirstName, newLastName, newUsername, changeAdmin, newPassword);
         adminStaffAgent.changeStaffAttributes(staffID, staffChange);
 
     }

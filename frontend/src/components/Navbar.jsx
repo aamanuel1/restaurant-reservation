@@ -14,9 +14,9 @@ export const Navbar = () => {
     <nav className="navbar">
       <div className='nav-texts'>
         <Link to="/"> Home </Link>
-        <Link to="/users"> Users </Link>
-        <Link to="/posts/all-posts"> Posts </Link>
-        <Link to="/posts/add-post"> Write Post </Link>
+        <Link to="/customers"> Customers </Link>
+        <Link to="/"> Food </Link>
+        <Link to="/"> Restaurants </Link>
       </div>
     </nav>
   )

@@ -1,12 +1,13 @@
 import React from "react";
-import { useGetAllUsersQuery } from "../../api/usersSlice";
+import { useGetAllCustomersQuery } from "../../api/usersSlice";
 import { Link } from "react-router-dom";
 
 
 export const UsersList = () => {
     const renderedUsers = (users) => users.map((user) => (
-        <li key={user.id}>
-        <Link to={`/users/${user.id}`}>
+        
+        <li key={user.userId}>
+        <Link to={`/customer/${user.userId}`}>
             {user.firstName && user.lastName 
             ? `${user.firstName} ${user.lastName}`
             : user.firstName 
@@ -17,11 +18,13 @@ export const UsersList = () => {
         </li>
     ));
 
-    const { data, error, isLoading } = useGetAllUsersQuery();
+    
+
+    const { data, error, isLoading } = useGetAllCustomersQuery();
 
     return (
         <section>
-            <h2>Users</h2>
+            <h2>Customers</h2>
             {error ?(
             <>Oh no, there was an error</>
             ) : isLoading ? (

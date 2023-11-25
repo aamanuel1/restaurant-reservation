@@ -2,26 +2,26 @@ import React from "react";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 
-const baseUrl = "http://localhost:8080/api/v1";
+const baseUrl = "http://localhost:8080/api";
 
 export const usersApi = createApi({
     reducerPath: 'usersApi',
     baseQuery: fetchBaseQuery({baseUrl: baseUrl}),
     endpoints: (builder) => ({
-        getAllUsers: builder.query({
-            query: () => "users/all-users",
+        getAllCustomers: builder.query({
+            query: () => "customer/list",
         }),
-        getUserById: builder.query({
-            query: (userId) => `users/by-id/${userId}`,
+        getCustomerByEmail: builder.query({
+            query: (email) => `customer/profile/${email}`,
         }),
-        getUserByUserName: builder.query({
-            query: (userName) => `users/by-username/${userName}`,
+        getCustomerById: builder.query({
+            query: (id) => `customer/profile/id/${id}`,
         }),
-        addNewUser: builder.mutation({
-            query: (newUser) => ({
-                url: 'users/add-user',
+        addNewCustomer: builder.mutation({
+            query: (newCustomer) => ({
+                url: 'customer/add',
                 method: 'POST',
-                body: newUser,
+                body: newCustomer,
             }),
         }),
         getAllPosts: builder.query({
@@ -66,10 +66,11 @@ export const usersApi = createApi({
 })
 
 export const { 
-    useGetAllUsersQuery,
-    useGetUserByIdQuery,
-    useGetUserByUserNameQuery,
-    useAddNewUserMutation,
+    useGetAllCustomersQuery,
+    useGetCustomerByEmailQuery,
+    useGetCustomerByIdQuery,
+    useAddNewCustomerMutation,
+
     useGetUserPostsQuery,
     useGetAllPostsQuery,
     useGetPostByIdQuery,

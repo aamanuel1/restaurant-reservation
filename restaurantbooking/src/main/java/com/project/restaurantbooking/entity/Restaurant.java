@@ -15,7 +15,7 @@ import java.util.Set;
 @Builder
 @Entity
 @Table(name = "restaurant")
-public class Restaurant implements Serializable {
+public class Restaurant {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

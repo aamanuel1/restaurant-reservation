@@ -1,6 +1,8 @@
 package com.project.restaurantbooking.agent;
 
 
+import com.project.restaurantbooking.SpringContextProvider;
+import com.project.restaurantbooking.behaviours.LoginBehaviour;
 import com.project.restaurantbooking.entity.Staff;
 import com.project.restaurantbooking.repo.StaffRepository;
 import jade.core.Agent;
@@ -10,6 +12,8 @@ import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.domain.FIPAException;
 import jade.lang.acl.ACLMessage;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -17,44 +21,28 @@ import java.util.Optional;
 @Service
 public class StaffAgent extends Agent {
 
-    protected final StaffRepository staffRepository;
-
-    public StaffAgent(){
-        this.staffRepository = null;
-    }
-
-    public StaffAgent(StaffRepository staffRepository){
-        this.staffRepository = staffRepository;
-    }
+    protected StaffRepository staffRepository;
 
     protected void setup(){
         System.out.println("Testing. Placeholder behaviour");
+        ApplicationContext context = SpringContextProvider.getApplicationContext();
+        staffRepository = context.getBean(StaffRepository.class);
         //Register the staff agent.
         DFAgentDescription dfDesc = new DFAgentDescription();
         dfDesc.setName((getAID()));
         ServiceDescription servDesc = new ServiceDescription();
         servDesc.setType("Staff");
-        servDesc.setName(getLocalName() + "-Staff-agent");
+        servDesc.setName(getLocalName());
         dfDesc.addServices(servDesc);
         try {
             DFService.register(this, dfDesc);
         }catch (FIPAException e){
             e.printStackTrace();
         }
-//
-//        //Check for terminate message
-//        addBehaviour(new CyclicBehaviour() {
-//            @Override
-//            public void action() {
-//                ACLMessage msg = receive();
-//                if(msg != null && "terminate".equals(msg.getContent())){
-//                    doDelete();
-//                }
-//                else{
-//                    block();
-//                }
-//            }
-//        });
+
+        setEnabledO2ACommunication(true, 0);
+        addBehaviour(new LoginBehaviour(this, staffRepository));
+
     }
 
     protected void takeDown(){

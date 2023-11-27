@@ -7,6 +7,7 @@ import jade.core.Runtime;
 import jade.wrapper.AgentController;
 import jade.wrapper.ContainerController;
 import jade.wrapper.StaleProxyException;
+import jade.wrapper.gateway.JadeGateway;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -21,8 +22,8 @@ public class JadeConfiguration {
     @Value("${jade.container-name}")
     private String containerName;
 
-    @Value("${jade.agents")
-    private String agents;
+//    @Value("${jade.agents}")
+//    private String agents;
 
     //Create new bean for the jade container, and start the jade container with args.
     @Bean
@@ -38,23 +39,41 @@ public class JadeConfiguration {
         //Create container based on the profile.
         ContainerController jadeContainer = jadeRuntime.createMainContainer(jadeProfile);
 
-        staffAgentController(jadeContainer);
+        try {
+            AgentController staffAgent = jadeContainer.createNewAgent("staffAgent",
+                    "com.project.restaurantbooking.agent.StaffAgent",
+                    null);
+            staffAgent.start();
+        } catch (StaleProxyException e) {
+            e.printStackTrace();
+        }
+
+        //Start Gateway Agent
+        JadeGateway.init("com.project.restaurantbooking.agent.RestaurantGatewayAgent", jadeProfile.getBootProperties());
+//        try{
+//            AgentController restaurantGatewayAgent = jadeContainer.createNewAgent("gatewayAgent",
+//                    "com.project.restaurantbooking.agent.RestaurantGatewayAgent",
+//                    null);
+//            restaurantGatewayAgent.start();
+//        }catch(StaleProxyException e) {
+//            e.printStackTrace();
+//        }
 
         return jadeContainer;
     }
 
-    @Bean
-    public AgentController staffAgentController(ContainerController container){
-        try {
-            AgentController staffAgent = container.createNewAgent("staffAgent",
-                    "com.project.restaurantbooking.agent.StaffAgent",
-                    null);
-            staffAgent.start();
-            return staffAgent;
-        } catch (StaleProxyException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
+//    @Bean
+//    public AgentController staffAgentController(ContainerController container){
+//        try {
+//            AgentController staffAgent = container.createNewAgent("staffAgent",
+//                    "com.project.restaurantbooking.agent.StaffAgent",
+//                    null);
+//            staffAgent.start();
+//            return staffAgent;
+//        } catch (StaleProxyException e) {
+//            e.printStackTrace();
+//        }
+//        return null;
+//    }
 
 }

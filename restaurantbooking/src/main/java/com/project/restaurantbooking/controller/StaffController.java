@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 @RestController
 @CrossOrigin({"*"})
@@ -39,8 +40,8 @@ public class StaffController extends Agent{
     }
 
     @PostMapping("/api/v1/login")
-    public Optional<Staff> login(@RequestParam String username, @RequestParam String password) {
-        Optional<Staff> loginStaff = staffService.login(username, password);
+    public CompletableFuture<Optional<Staff>> login(@RequestParam String username, @RequestParam String password) {
+        CompletableFuture<Optional<Staff>> loginStaff = staffService.login(username, password);
         return loginStaff;
     }
 
@@ -71,6 +72,7 @@ public class StaffController extends Agent{
 //
 //        //Return staff agent if successful.
 //        return adminStaff;
+        return null;
     }
 
     @PostMapping("/api/v1/logout")
@@ -106,7 +108,7 @@ public class StaffController extends Agent{
                             @RequestParam(required = false) String newPassword){
         Long tempRestaurantID = Long.valueOf(1);
         Staff staffChange = new Staff(null, newFirstName, newLastName, newUsername, changeAdmin, newPassword);
-        adminStaffAgent.changeStaffAttributes(staffID, staffChange);
+//        adminStaffAgent.changeStaffAttributes(staffID, staffChange);
 
     }
 
@@ -117,10 +119,10 @@ public class StaffController extends Agent{
                             @RequestParam(required = false) ArrayList<Shift> timeslots){
         if(timeslots == null){
             //use empty timeslots
-            adminStaffAgent.createEmptyTable(restaurantId, tableOccupancyNum, available);
+//            adminStaffAgent.createEmptyTable(restaurantId, tableOccupancyNum, available);
         }
         else{
-            adminStaffAgent.createTable(restaurantId, tableOccupancyNum, available, timeslots);
+//            adminStaffAgent.createTable(restaurantId, tableOccupancyNum, available, timeslots);
         }
     }
 

@@ -9,6 +9,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class LoginResponse {
+    private String requestId;
     private String operation;
     private boolean successfulLogin;
     private Staff staff;

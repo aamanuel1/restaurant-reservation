@@ -1,30 +1,23 @@
 import React from "react";
-import { useGetAllCustomersQuery } from "../../api/usersSlice";
+import { useGetAllFoodsQuery } from "../../api/usersSlice";
 import { Link } from "react-router-dom";
 
 
 export const FoodList = () => {
-    const renderedUsers = (users) => users.map((user) => (
+    const renderedUsers = (foods) => foods.map((food) => (
         
-        <li key={user.userId}>
-        <Link to={`/customer/${user.userId}`}>
-            {user.firstName && user.lastName 
-            ? `${user.firstName} ${user.lastName}`
-            : user.firstName 
-            ? user.firstName
-            : user.lastName
-            ? user.lastName
-            : user.userName}</Link>
+        <li key={food.id}>
+            {food.name && food.cuisine ? `${food.name} -- ${food.cuisine}` : food.name }
         </li>
     ));
 
     
 
-    const { data, error, isLoading } = useGetAllCustomersQuery();
+    const { data, error, isLoading } = useGetAllFoodsQuery();
 
     return (
         <section>
-            <h2>Customers</h2>
+            <h2>Dishes</h2>
             {error ?(
             <>Oh no, there was an error</>
             ) : isLoading ? (

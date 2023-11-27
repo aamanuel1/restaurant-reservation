@@ -5,6 +5,7 @@ import lombok.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Random;
 
 @Data
 @AllArgsConstructor
@@ -21,6 +22,7 @@ public class Reservation {
 
     private LocalDateTime startTime;
     private LocalDateTime endTime;
+    private long reservationNumber;
 
     @ManyToOne
     @JoinColumn(name = "customer_id", nullable = false)
@@ -33,5 +35,11 @@ public class Reservation {
         this.startTime = startTime;
         this.endTime = endTime;
         this.customer = customer;
+        this.reservationNumber = generateReservationNumber();
+    }
+
+    public static Long generateReservationNumber() {
+        Random random = new Random();
+        return 1000 + random.nextLong(9000);
     }
 }

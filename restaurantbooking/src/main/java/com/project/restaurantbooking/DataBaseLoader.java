@@ -19,11 +19,12 @@ public class DataBaseLoader implements CommandLineRunner {
     private final TableRepository tableRepository;
     private final FoodRepository foodRepository;
     private final FavouriteFoodRepository favouriteFoodRepository;
+    private final WaitTimeRepository waitTimeRepository;
 
     public DataBaseLoader(CustomerRepository customerRepository, ReservationRepository reservationRepository,
                           RestaurantRepository restaurantRepository, ShiftRepository shiftRepository,
                           StaffRepository staffRepository, TableRepository tableRepository,
-                          FoodRepository foodRepository, FavouriteFoodRepository favouriteFoodRepository) {
+                          FoodRepository foodRepository, FavouriteFoodRepository favouriteFoodRepository, WaitTimeRepository waitTimeRepository) {
         this.customerRepository = customerRepository;
         this.reservationRepository = reservationRepository;
         this.restaurantRepository = restaurantRepository;
@@ -32,6 +33,7 @@ public class DataBaseLoader implements CommandLineRunner {
         this.tableRepository = tableRepository;
         this.foodRepository = foodRepository;
         this.favouriteFoodRepository = favouriteFoodRepository;
+        this.waitTimeRepository = waitTimeRepository;
     }
 
     /**
@@ -110,6 +112,11 @@ public class DataBaseLoader implements CommandLineRunner {
                 new HashSet<>(Set.of(Cuisine.FRENCH, Cuisine.MOROCCAN, Cuisine.ITALIAN, Cuisine.SPANISH))
         );
         frenchRestaurant = restaurantRepository.save(frenchRestaurant);
+        WaitTime waitTime1 = waitTimeRepository.save(WaitTime.builder()
+                .restaurant(frenchRestaurant)
+                .minutes(30L)
+                .build()
+        );
 
         for (int i=0; i < 10; i++) {
             tableRepository.save(
@@ -128,6 +135,12 @@ public class DataBaseLoader implements CommandLineRunner {
                 new HashSet<>(Set.of(Cuisine.INDIAN, Cuisine.CHINESE, Cuisine.CANADIAN, Cuisine.RUSSIAN))
         );
         indianRestaurant = restaurantRepository.save(indianRestaurant);
+        WaitTime waitTime2 = waitTimeRepository.save(WaitTime.builder()
+                .restaurant(frenchRestaurant)
+                .minutes(100L)
+                .build()
+        );
+
         for (int i=0; i < 10; i++) {
             tableRepository.save(
                     RestaurantTable.builder()

@@ -7,7 +7,7 @@ export const UsersList = () => {
     const renderedUsers = (users) => users.map((user) => (
         
         <li key={user.userId}>
-        <Link to={`/customer/${user.userId}`}>
+        <Link to={`/customer/${user.email}`}>
             {user.firstName && user.lastName 
             ? `${user.firstName} ${user.lastName}`
             : user.firstName 

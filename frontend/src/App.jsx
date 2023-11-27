@@ -4,20 +4,9 @@ import { UsersList } from './components/users/UserList'
 import { BrowserRouter, Route, Router, Routes } from 'react-router-dom'
 import { Navbar } from './components/Navbar'
 import { UserPage } from './components/users/UserPage'
-// import { PostsList } from './components/posts/PostList'
-// import { SinglePostPage } from './components/posts/SinglePostPage'
-// import { AddPostForm } from './components/posts/AddPost'
-// import { EditPostForm } from './components/posts/EditPost'
+import { FoodList } from './components/food/FoodList'
+import { RestaurantList } from './components/RestaurantList'
 
-// const Home = () => {
-//   return (
-//     <div>
-//       <h2>
-//     Welcome to the Restaurant Reservation System!
-//       </h2>
-//     </div>
-//   )
-// }
 
 function App() {
 
@@ -28,6 +17,8 @@ function App() {
         <Routes>
           <Route path='/customers' element={<UsersList />} />
           <Route path='/customer/:email' element={<UserPage />} />
+          <Route path='/food/list' element={<FoodList />} />
+          <Route path='/restaurant/list' element={<RestaurantList />} />
           {/* <Route path='/posts/all-posts' element={<PostsList />} />
           <Route path='/posts/:postId/:userId' element={<SinglePostPage />} />
           <Route path='/posts/add-post' element={<AddPostForm />} />

@@ -1,6 +1,7 @@
 import React from "react";
 import { Link, useParams } from "react-router-dom";
 import { useGetCustomerByEmailQuery } from "../../api/usersSlice";
+import ReservationForm from "../forms/ReservationForm";
 
 
 export const UserPage = () => {
@@ -33,11 +34,11 @@ export const UserPage = () => {
                 <p>{user ? `Email: ${user.email}` : ""}</p>
                 <p>{user ? `Phone: ${user.phoneNum}` : ""}</p>
                 <hr/>
-                <Link style={{ display: 'block', margin: '10px 0' }}>Continue to make a Reservation</Link>
-                <Link style={{ display: 'block', margin: '10px 0' }}>View dishes</Link>
-                <Link style={{ display: 'block', margin: '10px 0' }}>View cuisines</Link>
-                <Link style={{ display: 'block', margin: '10px 0' }}>View Restaurants</Link>
+                <Link style={{ display: 'block', margin: '10px 0' }} to={`/`}>Continue to make a Reservation</Link>
+                <Link style={{ display: 'block', margin: '10px 0' }} to={`/food/list`}>View dishes</Link>
+                <Link style={{ display: 'block', margin: '10px 0' }} to={`/restaurant/list`}>View Restaurants</Link>
                 <hr/>
+                
             </div>
         )
     }
@@ -66,6 +67,7 @@ export const UserPage = () => {
     return (
         <section>
             {userInfo}
+            {<ReservationForm />}
         </section>
     )
 }

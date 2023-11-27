@@ -24,9 +24,13 @@ export const usersApi = createApi({
                 body: newCustomer,
             }),
         }),
-        getAllPosts: builder.query({
-            query: () => "user-posts/all-posts",
+        getAllFoods: builder.query({
+            query: () => "food/list",
         }),
+        getAllRestaurants: builder.query({
+            query: () => "restaurant/list",
+        }),
+
         getPostByIdAndUserId: builder.query({
             query: ({postId, userId}) => `user-posts/${postId}/${userId}`,
         }),
@@ -70,9 +74,10 @@ export const {
     useGetCustomerByEmailQuery,
     useGetCustomerByIdQuery,
     useAddNewCustomerMutation,
+    useGetAllFoodsQuery,
+    useGetAllRestaurantsQuery,
 
     useGetUserPostsQuery,
-    useGetAllPostsQuery,
     useGetPostByIdQuery,
     useAddNewPostMutation,
     useGetPostByIdAndUserIdQuery,

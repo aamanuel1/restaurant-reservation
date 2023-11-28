@@ -82,8 +82,8 @@ public class StaffController extends Agent{
     }
 
     @PostMapping("api/v1/addstaff")
-    public void addStaff(@RequestBody Staff newStaff){
-//        adminStaffAgent.addStaff(newStaff);
+    public void addStaff(@RequestParam String username, @RequestBody Staff newStaff){
+        staffService.addStaff(username, newStaff);
     }
 
     @PostMapping("api/v1/deletestaff")

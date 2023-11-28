@@ -2,12 +2,12 @@ package com.project.restaurantbooking.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.project.restaurantbooking.entity.Staff;
+import com.project.restaurantbooking.messagetemplates.AddStaffRequest;
+import com.project.restaurantbooking.messagetemplates.AddStaffResponse;
 import com.project.restaurantbooking.messagetemplates.LoginRequest;
 import com.project.restaurantbooking.messagetemplates.LoginResponse;
 import jade.core.AID;
 import jade.lang.acl.ACLMessage;
-import jade.wrapper.AgentController;
-import jade.wrapper.ContainerController;
 import jade.wrapper.gateway.JadeGateway;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -95,6 +95,11 @@ public class StaffService {
             Optional<Staff> staff = Optional.ofNullable(loginResponse.getStaff());
             ((CompletableFuture<Optional<Staff>>) futurePromise).complete((Optional<Staff>) staff);
         }
+
+        if(response instanceof AddStaffResponse){
+            AddStaffResponse addStaffResponse = (AddStaffResponse) response;
+            ((CompletableFuture<AddStaffResponse>) futurePromise).complete((AddStaffResponse) addStaffResponse);
+        }
     }
 
     public CompletableFuture<Optional<Staff>> login(String username, String password){
@@ -120,6 +125,30 @@ public class StaffService {
 
         //Return the future response once we receive it in receiveResponseFromStaffAgent()
         return futureLoginResponse;
+    }
+
+    public CompletableFuture<AddStaffResponse> addStaff(String username, Staff newStaff){
+        //Store the future request in the pending requests hashmap.
+        String requestId = UUID.randomUUID().toString();
+        CompletableFuture<AddStaffResponse> futureAddStaffResponse = new CompletableFuture<>();
+        pendingRequests.put(requestId, futureAddStaffResponse);
+
+        AddStaffRequest addStaffRequest = new AddStaffRequest();
+        addStaffRequest.setRequestId(requestId);
+        addStaffRequest.setOperation("add-staff");
+        addStaffRequest.setUsername(username);
+        addStaffRequest.setAddStaff(newStaff);
+        try{
+            JadeGateway.execute(addStaffRequest);
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        return futureAddStaffResponse;
+
+//        Optional<Staff> staffToAdd = searchStaffByUsername(newStaff.getUsername());
+//        if(staffToAdd.isPresent()){
+//            throw new IllegalStateException("Username already exists");
+//        }
     }
 
 }

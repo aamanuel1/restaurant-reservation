@@ -38,11 +38,18 @@ public class LoginBehaviour extends CyclicBehaviour {
         if(loginMsg != null){
             LoginRequest loginRequest = null;
 
+            //Have to have a way to check the operation type.
             try{
                 loginRequest = jsonMapper.readValue(loginMsg.getContent(), LoginRequest.class);
             } catch(Exception e){
+                //It's not a login request so block and return message.
                 e.printStackTrace();
+                block();
             }
+            if(!loginRequest.getOperation().equals("login")){
+                block();
+            }
+
             Optional<Staff> loggedInStaff = checkStaffCredentials(loginRequest.getUsername(), loginRequest.getPassword());
             LoginResponse loginResponse = new LoginResponse();
             loginResponse.setRequestId(loginMsg.getConversationId());

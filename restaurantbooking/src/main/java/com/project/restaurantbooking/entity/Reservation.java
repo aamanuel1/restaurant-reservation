@@ -1,68 +1,45 @@
 package com.project.restaurantbooking.entity;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Random;
 
-@Entity
-@Getter
-@Setter
+@Data
+@AllArgsConstructor
 @NoArgsConstructor
+@Builder
+@Entity
 @Table(name = "reservation")
 public class Reservation {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "reservation_id")
-    private Long reservationId;
-
-//    private Long userId;
-
-//    private Long restaurantId;
+    private Long id;
 
     private LocalDateTime startTime;
-
     private LocalDateTime endTime;
-
-//    private Long tableId;
-
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    private Customer user;
+    private long reservationNumber;
 
     @ManyToOne
-    @JoinColumn(name = "restaurant_id")
-    private Restaurant restaurant;
+    @JoinColumn(name = "customer_id", nullable = false)
+    private Customer customer;
 
-    @OneToOne
-    @JoinColumn(name = "table_id")
-    private RestaurantTable restaurantTable;
-
-    public Reservation(Long reservationId, LocalDateTime startTime, LocalDateTime endTime, Customer user, Restaurant restaurant, RestaurantTable restaurantTable) {
-        this.reservationId = reservationId;
+    @ManyToOne
+    @JoinColumn(name = "table_id", nullable = false)
+    private RestaurantTable table;
+    public Reservation(LocalDateTime startTime, LocalDateTime endTime, Customer customer) {
         this.startTime = startTime;
         this.endTime = endTime;
-        this.user = user;
-        this.restaurant = restaurant;
-        this.restaurantTable = restaurantTable;
+        this.customer = customer;
+        this.reservationNumber = generateReservationNumber();
     }
 
-    public Reservation(LocalDateTime startTime, LocalDateTime endTime, Customer user, Restaurant restaurant, RestaurantTable restaurantTable) {
-        this.startTime = startTime;
-        this.endTime = endTime;
-        this.user = user;
-        this.restaurant = restaurant;
-        this.restaurantTable = restaurantTable;
-    }
-
-    public Reservation(LocalDateTime startTime, LocalDateTime endTime, Restaurant restaurant, RestaurantTable restaurantTable) {
-        this.startTime = startTime;
-        this.endTime = endTime;
-        this.restaurant = restaurant;
-        this.restaurantTable = restaurantTable;
+    public static Long generateReservationNumber() {
+        Random random = new Random();
+        return 1000 + random.nextLong(9000);
     }
 }

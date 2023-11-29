@@ -1,24 +1,23 @@
 package com.project.restaurantbooking.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.Getter;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
 
-@Entity
-@Getter @Setter
+@Data
+@AllArgsConstructor
 @NoArgsConstructor
+@Builder
+@Entity
 @Table(name = "restaurant_table")
 public class RestaurantTable implements Serializable {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue
     @Column(name = "table_id")
     private Long tableId;
 
@@ -27,29 +26,14 @@ public class RestaurantTable implements Serializable {
     private boolean available;
 
     @ManyToOne
-    @JoinColumn(name = "restaurant_id")
+    @JoinColumn(name = "restaurant_id", nullable = false)
     private Restaurant restaurant;
 
-    @JsonIgnore
-    @OneToMany(mappedBy = "table")
-    private Set<Shift> timeslots = new HashSet<Shift>();
-
-    public RestaurantTable(Long tableId, Restaurant restaurant, int tableOccupancyNum, boolean available) {
-        this.tableId = tableId;
-        this.restaurant = restaurant;
+    public RestaurantTable(int tableOccupancyNum, boolean available, Restaurant restaurant) {
         this.tableOccupancyNum = tableOccupancyNum;
         this.available = available;
+        this.restaurant = restaurant;
     }
 
-    public RestaurantTable(Restaurant restaurant, int tableOccupancyNum, boolean available, ArrayList<Shift> timeslots) {
-        this.restaurant = restaurant;
-        this.tableOccupancyNum = tableOccupancyNum;
-        this.available = available;
-    }
 
-    public RestaurantTable(Restaurant restaurant, int tableOccupancyNum, boolean available) {
-        this.restaurant = restaurant;
-        this.tableOccupancyNum = tableOccupancyNum;
-        this.available = available;
-    }
 }

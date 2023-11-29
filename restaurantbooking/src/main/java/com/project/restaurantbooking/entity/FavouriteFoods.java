@@ -1,38 +1,32 @@
 package com.project.restaurantbooking.entity;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.io.Serializable;
 
-@Entity
-@Getter
-@Setter
+@Data
+@AllArgsConstructor
 @NoArgsConstructor
+@Builder
+@Entity
 @Table(name = "favourite_foods")
 public class FavouriteFoods implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "food_id")
-    private Long foodId;
-
-    private String favouriteFoods;
+    private Long id;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private Customer customer;
 
-    public FavouriteFoods(Long foodId, String favouriteFoods, Customer customer) {
-        this.foodId = foodId;
-        this.favouriteFoods = favouriteFoods;
-        this.customer = customer;
-    }
+    @ManyToOne
+    @JoinColumn(name = "food_id", nullable = false)
+    private Food food;
 
-    public FavouriteFoods(String favouriteFoods, Customer customer) {
-        this.favouriteFoods = favouriteFoods;
-        this.customer = customer;
-    }
+//    public FavouriteFoods(Customer customer, Food food) {
+//        this.customer = customer;
+//        this.food = food;
+//    }
 }

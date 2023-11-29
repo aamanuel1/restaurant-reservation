@@ -9,12 +9,19 @@ import jade.wrapper.ContainerController;
 import jade.wrapper.StaleProxyException;
 import jade.wrapper.gateway.JadeGateway;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class JadeConfiguration {
+    private final ApplicationContext applicationContext;
 
+    public JadeConfiguration(ApplicationContext applicationContext) {
+        System.out.println("\nSetting application context in GlobalApplicationContext\n");
+        this.applicationContext = applicationContext;
+        GlobalApplicationContext.setApplicationContext(applicationContext);
+    }
     //Set parameter values, see application.properties for values.
     @Value("${jade.show-gui}")
     private boolean showGui;
@@ -44,6 +51,16 @@ public class JadeConfiguration {
                     "com.project.restaurantbooking.agent.StaffAgent",
                     null);
             staffAgent.start();
+            AgentController restaurantAgent = jadeContainer.createNewAgent(
+                    "restaurantAgent",
+                    "com.project.restaurantbooking.agent.RestaurantAgent",
+                    null
+            );
+            restaurantAgent.start();
+
+            // Initialize the GatewayAgent
+            JadeGateway.init("com.project.restaurantbooking.MyGatewayAgent", jadeProfile.getBootProperties());
+
         } catch (StaleProxyException e) {
             e.printStackTrace();
         }

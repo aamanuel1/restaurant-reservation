@@ -13,7 +13,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@Getter @Setter
+@Getter
+@Setter
 @NoArgsConstructor
 @Table(name = "staff")
 /**Staff entity class for establishing the database.

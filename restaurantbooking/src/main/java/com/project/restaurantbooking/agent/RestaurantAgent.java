@@ -1,5 +1,6 @@
 package com.project.restaurantbooking.agent;
 
+import com.project.restaurantbooking.ApplicationContextProvider;
 import jade.core.Agent;
 import jade.core.behaviours.CyclicBehaviour;
 import jade.domain.DFService;
@@ -10,6 +11,7 @@ import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 import lombok.SneakyThrows;
 import org.json.JSONObject;
+import org.springframework.context.ApplicationContext;
 
 public class RestaurantAgent extends Agent {
     // Consider using a data structure to store restaurant information
@@ -18,12 +20,14 @@ public class RestaurantAgent extends Agent {
     @Override
     protected void setup() {
         System.out.println("\n=== RestaurantAgent "+getAID().getName()+" is ready. ===\n");
+        ApplicationContext context = ApplicationContextProvider.getApplicationContext();
+        System.out.println("\n========= RestaurantAgent - setup - Context:"+ context+ "\n");
         // Register the restaurant-reservation service in the yellow pages
         DFAgentDescription dfd = new DFAgentDescription();
         dfd.setName(getAID());
         ServiceDescription sd = new ServiceDescription();
         sd.setType("restaurant-reservation");
-        sd.setName("JADE-restaurant-reservation");
+        sd.setName(getLocalName());
         dfd.addServices(sd);
         try {
             DFService.register(this, dfd);

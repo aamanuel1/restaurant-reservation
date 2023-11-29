@@ -83,6 +83,9 @@ public class StaffService {
         try{
             return objectMapper.readValue(message, LoginResponse.class);
         } catch(IOException ignore){}
+        try{
+            return objectMapper.readValue(message, AddStaffResponse.class);
+        } catch(IOException ignore){};
 
         //default to null.
         return null;
@@ -115,8 +118,6 @@ public class StaffService {
         loginRequest.setUsername(username);
         loginRequest.setPassword(password);
 
-            //Send the request to the JADE container gateway for the staff
-//            sendRequestToStaffAgent(loginJSON);
         try{
             JadeGateway.execute(loginRequest);
         } catch (Exception e) {
@@ -145,10 +146,6 @@ public class StaffService {
         }
         return futureAddStaffResponse;
 
-//        Optional<Staff> staffToAdd = searchStaffByUsername(newStaff.getUsername());
-//        if(staffToAdd.isPresent()){
-//            throw new IllegalStateException("Username already exists");
-//        }
     }
 
 }

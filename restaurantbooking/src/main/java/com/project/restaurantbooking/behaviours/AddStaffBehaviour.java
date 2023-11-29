@@ -10,6 +10,7 @@ import com.project.restaurantbooking.repo.StaffRepository;
 import jade.core.Agent;
 import jade.core.behaviours.CyclicBehaviour;
 import jade.lang.acl.ACLMessage;
+import jade.lang.acl.MessageTemplate;
 import org.springframework.context.ApplicationContext;
 import org.springframework.integration.channel.DirectChannel;
 import org.springframework.messaging.Message;
@@ -25,15 +26,19 @@ public class AddStaffBehaviour extends CyclicBehaviour {
 
     private DirectChannel staffAgentResponseChannel;
 
+    private MessageTemplate messageTemplate;
     public AddStaffBehaviour(Agent agent){
         super(agent);
+        this.messageTemplate = MessageTemplate.MatchProtocol("add-staff");
     }
 
     @Override
     public void action() {
         //Establish Spring Application context.
+        System.out.println("Getting to action of add staff");
         ApplicationContext context = SpringContextProvider.getApplicationContext();
-        ACLMessage addStaffMsg = myAgent.receive();
+        staffAgentResponseChannel = context.getBean("StaffAgentReplyChannel", DirectChannel.class);
+        ACLMessage addStaffMsg = myAgent.receive(messageTemplate);
         if(addStaffMsg != null){
             AddStaffRequest addStaffRequest = null;
 
@@ -43,7 +48,7 @@ public class AddStaffBehaviour extends CyclicBehaviour {
                 e.printStackTrace();
                 block();
             }
-            if(!addStaffRequest.getOperation().equals("add-staff"));
+
             boolean isStaffAuthorized = this.isStaffAuthorized(addStaffRequest.getUsername());
             boolean isAddSuccessful = false;
             if(isStaffAuthorized){
@@ -74,6 +79,7 @@ public class AddStaffBehaviour extends CyclicBehaviour {
             } catch (JsonProcessingException e) {
                 e.printStackTrace();
             }
+            System.out.println("Message time.");
             Message<String> addStaffSpringMessage = MessageBuilder.withPayload(addStaffResponseJSON)
                     .setHeader("requestId", addStaffMsg.getConversationId())
                     .build();

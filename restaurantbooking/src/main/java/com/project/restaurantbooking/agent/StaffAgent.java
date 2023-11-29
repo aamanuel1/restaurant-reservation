@@ -2,17 +2,15 @@ package com.project.restaurantbooking.agent;
 
 
 import com.project.restaurantbooking.SpringContextProvider;
+import com.project.restaurantbooking.behaviours.AddStaffBehaviour;
 import com.project.restaurantbooking.behaviours.LoginBehaviour;
 import com.project.restaurantbooking.entity.Staff;
 import com.project.restaurantbooking.repo.StaffRepository;
 import jade.core.Agent;
-import jade.core.behaviours.CyclicBehaviour;
 import jade.domain.DFService;
 import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.domain.FIPAException;
-import jade.lang.acl.ACLMessage;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
@@ -42,6 +40,7 @@ public class StaffAgent extends Agent {
 
         setEnabledO2ACommunication(true, 0);
         addBehaviour(new LoginBehaviour(this, staffRepository));
+        addBehaviour(new AddStaffBehaviour(this));
 
     }
 

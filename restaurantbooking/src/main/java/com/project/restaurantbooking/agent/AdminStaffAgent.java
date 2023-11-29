@@ -1,5 +1,6 @@
 package com.project.restaurantbooking.agent;
 
+import com.project.restaurantbooking.entity.Restaurant;
 import com.project.restaurantbooking.entity.RestaurantTable;
 import com.project.restaurantbooking.entity.Shift;
 import com.project.restaurantbooking.entity.Staff;
@@ -12,13 +13,13 @@ import java.util.Optional;
 @Service
 public class AdminStaffAgent extends StaffAgent{
 
-    public AdminStaffAgent(){
-        super();
-    }
+//    public AdminStaffAgent(){
+//        super();
+//    }
 
-    public AdminStaffAgent(StaffRepository staffRepository){
-        super(staffRepository);
-    }
+//    public AdminStaffAgent(StaffRepository staffRepository){
+//        super(staffRepository);
+//    }
 
     //Staff repository CRUD ops.
     //TODO: implement as behaviours in setup.
@@ -41,7 +42,7 @@ public class AdminStaffAgent extends StaffAgent{
     }
 
     public void changeStaffAttributes(Long staffID, Staff staffChange){
-        Optional<Staff> changeThisStaff = staffRepository.findUserByStaffId(staffID);
+        Optional<Staff> changeThisStaff = staffRepository.findById(staffID);
         if(changeThisStaff.isPresent()){
             Staff staff = changeThisStaff.get();
             //Go through each attribute one by one and check for null before changing, then save to repo
@@ -66,16 +67,17 @@ public class AdminStaffAgent extends StaffAgent{
     }
 
     public Optional<Staff> searchStaffById(Long staffId){
-        return staffRepository.findUserByStaffId(staffId);
+        assert staffRepository != null;
+        return staffRepository.findById(staffId);
     }
 
     public void createEmptyTable(Long restaurantId, int tableOccupancyNum, boolean available){
-        RestaurantTable createdEmptyTable = new RestaurantTable(null, tableOccupancyNum, available);
+        RestaurantTable createdEmptyTable = new RestaurantTable(tableOccupancyNum, available, null);
         //TODO: implement in scheduling agent, replace restaurantId
     }
 
     public void createTable(Long restaurantId, int tableOccupancyNum, boolean available, ArrayList<Shift> timeslots){
-        RestaurantTable createdTable = new RestaurantTable(null, tableOccupancyNum, available, timeslots);
+        RestaurantTable createdTable = new RestaurantTable(null, tableOccupancyNum, available, null);
         //TODO: implement in scheduling agent
     }
 

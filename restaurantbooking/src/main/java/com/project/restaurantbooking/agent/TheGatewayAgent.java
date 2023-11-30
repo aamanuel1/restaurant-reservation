@@ -23,7 +23,7 @@ public class TheGatewayAgent extends GatewayAgent {
 
     @Override
     protected void setup() {
-        System.out.println("MyGatewayAgent - setup - Agent " + getAID().getName() + " is ready.");
+        System.out.println("\nMyGatewayAgent - setup - Agent " + getAID().getName() + " is ready.\n");
 //        ApplicationContext context = ApplicationContextProvider.getApplicationContext();
 //        System.out.println("MyGatewayAgent - setup - Context:"+ context);
 
@@ -44,12 +44,14 @@ public class TheGatewayAgent extends GatewayAgent {
 //            }
 //        });
 
-        addBehaviour(new CyclicBehaviour(this) {
+        addBehaviour(new CyclicBehaviour() {
             @SneakyThrows
             @Override
             public void action() {
                 System.out.println("\n=== MyGatewayAgent: Receiving Msg ====\n");
                 ACLMessage msg = receive();
+                System.out.println("\n=== MyGatewayAgent: Receiving Msg ====2\n");
+                System.out.println("\n=== MyGatewayAgent: Msg Rcd ====\n"+msg);
                 if (msg != null) {
                     System.out.println("\n=== MyGatewayAgent: Msg Rcd ====\n"+msg);
                     // Process incoming messages
@@ -60,6 +62,7 @@ public class TheGatewayAgent extends GatewayAgent {
                     String responseToController = "Reservation request was processed";
 
                 } else {
+                    System.out.println("\nMessage is null: "+ msg +"\n");
                     block();
                 }
             }

@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.project.restaurantbooking.messagetemplates.AddStaffRequest;
 import com.project.restaurantbooking.messagetemplates.LoginRequest;
 import jade.core.AID;
+import jade.domain.DFService;
+import jade.domain.FIPAException;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 import jade.wrapper.gateway.GatewayAgent;
@@ -113,5 +115,23 @@ public class TheGatewayAgent extends GatewayAgent {
         else{
             System.out.println("Not working.");
         }
+    }
+
+    @Override
+    protected void takeDown() {
+        System.out.println("Agent " + getAID().getName() + " is shutting down.");
+        ACLMessage shutdownMsg = new ACLMessage(ACLMessage.INFORM);
+        shutdownMsg.addReceiver(new AID("restaurantAgent", AID.ISLOCALNAME));
+        shutdownMsg.setContent("Agent " + getAID().getName() + " is shutting down.");
+        send(shutdownMsg);
+
+        try {
+            DFService.deregister(this);
+        }
+        catch (FIPAException fe) {
+            fe.printStackTrace();
+        }
+
+        super.takeDown();
     }
 }

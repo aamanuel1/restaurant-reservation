@@ -4,6 +4,7 @@ import com.project.restaurantbooking.agent.AdminStaffAgent;
 import com.project.restaurantbooking.agent.StaffAgent;
 import com.project.restaurantbooking.entity.Shift;
 import com.project.restaurantbooking.entity.Staff;
+import com.project.restaurantbooking.messagetemplates.AddStaffResponse;
 import com.project.restaurantbooking.service.StaffService;
 import jade.core.*;
 import jade.core.Agent;
@@ -13,6 +14,7 @@ import jade.wrapper.AgentController;
 import jade.wrapper.ContainerController;
 import jade.wrapper.StaleProxyException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -82,8 +84,8 @@ public class StaffController extends Agent{
     }
 
     @PostMapping("api/v1/addstaff")
-    public void addStaff(@RequestParam String username, @RequestBody Staff newStaff){
-        staffService.addStaff(username, newStaff);
+    public CompletableFuture<AddStaffResponse> addStaff(@RequestParam String username, @RequestBody Staff newStaff){
+        return staffService.addStaff(username, newStaff);
     }
 
     @PostMapping("api/v1/deletestaff")

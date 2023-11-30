@@ -9,6 +9,7 @@ import com.project.restaurantbooking.repo.StaffRepository;
 import jade.core.Agent;
 import jade.core.behaviours.CyclicBehaviour;
 import jade.lang.acl.ACLMessage;
+import jade.lang.acl.MessageTemplate;
 import jade.wrapper.AgentController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -25,18 +26,24 @@ public class LoginBehaviour extends CyclicBehaviour {
 
     private DirectChannel staffAgentResponseChannel;
 
+    private MessageTemplate messageTemplate;
     public LoginBehaviour(Agent agent, StaffRepository staffRepository){
         super(agent);
         this.staffRepository = staffRepository;
+        this.messageTemplate = MessageTemplate.MatchProtocol("login");
     }
 
     @Override
     public void action() {
         ApplicationContext context = SpringContextProvider.getApplicationContext();
         staffAgentResponseChannel = context.getBean("StaffAgentReplyChannel", DirectChannel.class);
-        ACLMessage loginMsg = myAgent.receive();
+        ACLMessage loginMsg = myAgent.receive(messageTemplate);
         if(loginMsg != null){
             LoginRequest loginRequest = null;
+
+            if(!loginMsg.getProtocol().equals("login")){
+                block();
+            }
 
             //Have to have a way to check the operation type.
             try{
@@ -62,12 +69,6 @@ public class LoginBehaviour extends CyclicBehaviour {
             else {
                 loginResponse.setSuccessfulLogin(false);
                 loginResponse.setStaff(null);
-            }
-
-            try {
-                myAgent.putO2AObject(loginResponse, AgentController.ASYNC);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
             }
 
             String loginResponseJSON = "";

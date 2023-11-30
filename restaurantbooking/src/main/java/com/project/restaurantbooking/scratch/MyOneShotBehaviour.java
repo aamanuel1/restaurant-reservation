@@ -1,4 +1,4 @@
-package com.project.restaurantbooking.behaviour;
+package com.project.restaurantbooking.scratch;
 
 import jade.core.behaviours.OneShotBehaviour;
 

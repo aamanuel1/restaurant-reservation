@@ -15,14 +15,7 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class JadeConfiguration {
-    private final ApplicationContext applicationContext;
 
-    public JadeConfiguration(ApplicationContext applicationContext) {
-        System.out.println("\nSetting application context in GlobalApplicationContext\n");
-        this.applicationContext = applicationContext;
-        GlobalApplicationContext.setApplicationContext(applicationContext);
-    }
-    //Set parameter values, see application.properties for values.
     @Value("${jade.show-gui}")
     private boolean showGui;
 

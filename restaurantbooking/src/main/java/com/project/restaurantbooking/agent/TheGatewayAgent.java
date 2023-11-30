@@ -10,7 +10,7 @@ import jade.wrapper.gateway.GatewayAgent;
 import jade.wrapper.gateway.JadeGateway;
 import lombok.extern.java.Log;
 
-public class RestaurantGatewayAgent extends GatewayAgent {
+public class TheGatewayAgent extends GatewayAgent {
 
 //    protected void setup(){
 //        System.out.println("Restaurant agent started.");

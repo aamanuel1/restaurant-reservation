@@ -44,6 +44,7 @@ public class JadeConfiguration {
                     "com.project.restaurantbooking.agent.StaffAgent",
                     null);
             staffAgent.start();
+
             AgentController restaurantAgent = jadeContainer.createNewAgent(
                     "restaurantAgent",
                     "com.project.restaurantbooking.agent.RestaurantAgent",

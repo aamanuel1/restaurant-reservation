@@ -21,12 +21,13 @@ public class TheGatewayAgent extends GatewayAgent {
 //        System.out.println("Restaurant agent started.");
 //    }
 
-    @Override
-    protected void setup() {
-        System.out.println("\nMyGatewayAgent - setup - Agent " + getAID().getName() + " is ready.\n");
-//        ApplicationContext context = ApplicationContextProvider.getApplicationContext();
-//        System.out.println("MyGatewayAgent - setup - Context:"+ context);
 
+//    @Override
+//    protected void setup() {
+//        System.out.println("\nMyGatewayAgent - setup - Agent " + getAID().getName() + " is ready.\n");
+////        ApplicationContext context = ApplicationContextProvider.getApplicationContext();
+////        System.out.println("MyGatewayAgent - setup - Context:"+ context);
+//
 //        addBehaviour(new OneShotBehaviour() {
 //            @Override
 //            public void action() {
@@ -43,31 +44,31 @@ public class TheGatewayAgent extends GatewayAgent {
 //                send(msg);
 //            }
 //        });
-
-        addBehaviour(new CyclicBehaviour() {
-            @SneakyThrows
-            @Override
-            public void action() {
-                System.out.println("\n=== MyGatewayAgent: Receiving Msg ====\n");
-                ACLMessage msg = receive();
-                System.out.println("\n=== MyGatewayAgent: Receiving Msg ====2\n");
-                System.out.println("\n=== MyGatewayAgent: Msg Rcd ====\n"+msg);
-                if (msg != null) {
-                    System.out.println("\n=== MyGatewayAgent: Msg Rcd ====\n"+msg);
-                    // Process incoming messages
-                    String content = msg.getContent();
-                    JSONObject json = new JSONObject(content);
-                    String correlationId = json.getString("correlationId");
-
-                    String responseToController = "Reservation request was processed";
-
-                } else {
-                    System.out.println("\nMessage is null: "+ msg +"\n");
-                    block();
-                }
-            }
-        });
-    }
+//
+//        addBehaviour(new CyclicBehaviour() {
+//            @SneakyThrows
+//            @Override
+//            public void action() {
+//                System.out.println("\n=== MyGatewayAgent: Receiving Msg ====\n");
+//                ACLMessage msg = receive();
+//                System.out.println("\n=== MyGatewayAgent: Receiving Msg ====2\n");
+//                System.out.println("\n=== MyGatewayAgent: Msg Rcd ====\n"+msg);
+//                if (msg != null) {
+//                    System.out.println("\n=== MyGatewayAgent: Msg Rcd ====\n"+msg);
+//                    // Process incoming messages
+//                    String content = msg.getContent();
+//                    JSONObject json = new JSONObject(content);
+//                    String correlationId = json.getString("correlationId");
+//
+//                    String responseToController = "Reservation request was processed";
+//
+//                } else {
+//                    System.out.println("\nMessage is null: "+ msg +"\n");
+//                    block();
+//                }
+//            }
+//        });
+//    }
 
     @Override
     protected void processCommand(Object command){
@@ -150,14 +151,14 @@ public class TheGatewayAgent extends GatewayAgent {
 
                 send(msg);
 
-                ACLMessage reply = blockingReceive(MessageTemplate.MatchInReplyTo("reserve"));
-
-                if (reply != null) {
-                    System.out.println("\nReply from RestAgent to Gateway\n"+ reply);
-                } else {
-                    System.out.println("\nGatewayAgent: No reply received\n");
-//                    reserveRequest.setResult("No reply received");
-                }
+//                ACLMessage reply = blockingReceive(MessageTemplate.MatchInReplyTo("reserve"));
+//
+//                if (reply != null) {
+//                    System.out.println("\nReply from RestAgent to Gateway\n"+ reply);
+//                } else {
+//                    System.out.println("\nGatewayAgent: No reply received\n");
+////                    reserveRequest.setResult("No reply received");
+//                }
             } catch (Exception e) {
                 System.out.println("Error: " + e.getMessage());
 //                reserveRequest.setResult("Error: " + e.getMessage());

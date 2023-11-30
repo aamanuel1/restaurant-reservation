@@ -50,6 +50,7 @@ public class ReservationController {
             System.out.println("\nReservControllerCommand: "+ command.toString() +"\n");
             // Send the message to the GatewayAgent
             JadeGateway.execute(command);
+//            Object result = command.getR
             System.out.println("\nReservController: Command Sent to GatewayAgent.\n");
 
 //            Object result = command.getResult();

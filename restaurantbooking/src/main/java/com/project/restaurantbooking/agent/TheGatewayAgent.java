@@ -5,10 +5,8 @@ import com.project.restaurantbooking.messagetemplates.AddStaffRequest;
 import com.project.restaurantbooking.messagetemplates.LoginRequest;
 import jade.core.AID;
 import jade.lang.acl.ACLMessage;
-import jade.wrapper.AgentController;
+import jade.lang.acl.MessageTemplate;
 import jade.wrapper.gateway.GatewayAgent;
-import jade.wrapper.gateway.JadeGateway;
-import lombok.extern.java.Log;
 
 public class TheGatewayAgent extends GatewayAgent {
 
@@ -53,6 +51,64 @@ public class TheGatewayAgent extends GatewayAgent {
             }
             send(addStaffRequestMessage);
             this.releaseCommand(addStaffRequest);
+        }
+
+//        if (command instanceof AgentCommand) {
+//            System.out.println("GatewayAgent - command: "+ command.toString());
+//            AgentCommand reserveRequest = (AgentCommand) command;
+//            ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
+//            msg.addReceiver(new AID(reserveRequest.getTargetAgent(), AID.ISLOCALNAME));
+//            String reserveRequestJSON = null;
+//            try {
+//                reserveRequestJSON = objectMapper.writeValueAsString(reserveRequest);
+//                msg.setConversationId("reserve");
+//                msg.setContent(reserveRequestJSON);
+//
+//                send(msg);
+//
+//                ACLMessage reply = blockingReceive(MessageTemplate.MatchInReplyTo("reserve"));
+//
+//                if (reply != null) {
+//                    reserveRequest.setResult(reply.getContent());
+//                } else {
+//                    System.out.println("\nGatewayAgent: No reply received\n");
+//                    reserveRequest.setResult("No reply received");
+//                }
+//            } catch (Exception e) {
+//                System.out.println("Error: " + e.getMessage());
+//                reserveRequest.setResult("Error: " + e.getMessage());
+//            }
+//            this.releaseCommand(command);
+//            System.out.println("\n=== GatewayAgent: Response sent back to controller ===\n");
+//        }
+
+        if (command instanceof String) {
+            System.out.println("GatewayAgent - command: "+ command.toString());
+            String reserveRequest = (String) command;
+            ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
+            msg.addReceiver(new AID("restaurantAgent", AID.ISLOCALNAME));
+//            String reserveRequestJSON = null;
+            try {
+//                reserveRequestJSON = objectMapper.writeValueAsString(reserveRequest);
+                msg.setConversationId("reserve");
+                msg.setContent(reserveRequest);
+
+                send(msg);
+
+                ACLMessage reply = blockingReceive(MessageTemplate.MatchInReplyTo("reserve"));
+
+                if (reply != null) {
+                    System.out.println("\nReply from RestAgent to Gateway\n"+ reply);
+                } else {
+                    System.out.println("\nGatewayAgent: No reply received\n");
+//                    reserveRequest.setResult("No reply received");
+                }
+            } catch (Exception e) {
+                System.out.println("Error: " + e.getMessage());
+//                reserveRequest.setResult("Error: " + e.getMessage());
+            }
+            this.releaseCommand(command);
+            System.out.println("\n=== GatewayAgent: Response sent back to controller ===\n");
         }
         else{
             System.out.println("Not working.");

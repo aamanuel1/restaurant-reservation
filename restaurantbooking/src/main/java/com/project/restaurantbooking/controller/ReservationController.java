@@ -41,13 +41,20 @@ public class ReservationController {
         }
         """, correlationId, food_name, wait_time);
 
+//        AgentCommand agentCommand = new AgentCommand("restaurantAgent", command);
+        System.out.println("AC Object: "+ command.toString());
+
         try {
             System.out.println("\nReservController: Sending Command to GatewayAgent.\n");
             System.out.println("\nResV Controller- Gateway isActive?:  "+ JadeGateway.isGatewayActive() +"\n");
-            System.out.println("\nReservControllerCommand: "+ command);
+            System.out.println("\nReservControllerCommand: "+ command.toString() +"\n");
             // Send the message to the GatewayAgent
             JadeGateway.execute(command);
             System.out.println("\nReservController: Command Sent to GatewayAgent.\n");
+
+//            Object result = command.getResult();
+            System.out.println("\nReservController: Result received."+ "result" +"\n");
+
 
             return ResponseEntity.ok(responseHolder.getResponseFuture());
         } catch (Exception e) {

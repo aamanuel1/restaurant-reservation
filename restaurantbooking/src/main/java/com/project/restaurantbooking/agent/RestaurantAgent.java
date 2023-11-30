@@ -1,6 +1,6 @@
 package com.project.restaurantbooking.agent;
 
-import com.project.restaurantbooking.ApplicationContextProvider;
+import com.project.restaurantbooking.SpringContextProvider;
 import jade.core.Agent;
 import jade.core.behaviours.CyclicBehaviour;
 import jade.domain.DFService;
@@ -20,7 +20,7 @@ public class RestaurantAgent extends Agent {
     @Override
     protected void setup() {
         System.out.println("\n=== RestaurantAgent "+getAID().getName()+" is ready. ===\n");
-        ApplicationContext context = ApplicationContextProvider.getApplicationContext();
+        ApplicationContext context = SpringContextProvider.getApplicationContext();
         System.out.println("\n========= RestaurantAgent - setup - Context:"+ context+ "\n");
         // Register the restaurant-reservation service in the yellow pages
         DFAgentDescription dfd = new DFAgentDescription();

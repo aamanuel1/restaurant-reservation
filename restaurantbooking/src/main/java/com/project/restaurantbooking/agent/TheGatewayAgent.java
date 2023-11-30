@@ -4,17 +4,45 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.project.restaurantbooking.messagetemplates.AddStaffRequest;
 import com.project.restaurantbooking.messagetemplates.LoginRequest;
 import jade.core.AID;
+import jade.core.behaviours.CyclicBehaviour;
+import jade.core.behaviours.OneShotBehaviour;
 import jade.domain.DFService;
 import jade.domain.FIPAException;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 import jade.wrapper.gateway.GatewayAgent;
+import org.springframework.context.ApplicationContext;
 
 public class TheGatewayAgent extends GatewayAgent {
 
 //    protected void setup(){
 //        System.out.println("Restaurant agent started.");
 //    }
+
+    @Override
+    protected void setup() {
+        System.out.println("MyGatewayAgent - setup - Agent " + getAID().getName() + " is ready.");
+//        ApplicationContext context = ApplicationContextProvider.getApplicationContext();
+//        System.out.println("MyGatewayAgent - setup - Context:"+ context);
+        addBehaviour(new OneShotBehaviour() {
+            @Override
+            public void action() {
+                ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
+                msg.addReceiver(new AID("restaurantAgent", AID.ISLOCALNAME));
+                String msgJSON = String.format("""
+                        {
+                            "correlationId": "InitialMessage",
+                            "targetAgent": "restaurantAgent",
+                            "data": "Initial message from MyGatewayAgent."
+                        }
+                        """);
+                msg.setContent(msgJSON);
+                send(msg);
+            }
+        });
+
+
+    }
 
     @Override
     protected void processCommand(Object command){

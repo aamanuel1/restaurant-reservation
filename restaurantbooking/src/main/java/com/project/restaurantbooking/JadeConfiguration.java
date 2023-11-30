@@ -53,14 +53,13 @@ public class JadeConfiguration {
             restaurantAgent.start();
 
             // Initialize the GatewayAgent
-//            JadeGateway.init("com.project.restaurantbooking.MyGatewayAgent", jadeProfile.getBootProperties());
+            JadeGateway.init("com.project.restaurantbooking.agent.TheGatewayAgent", jadeProfile.getBootProperties());
 
         } catch (StaleProxyException e) {
             e.printStackTrace();
         }
 
-        //Start Gateway Agent
-        JadeGateway.init("com.project.restaurantbooking.agent.TheGatewayAgent", jadeProfile.getBootProperties());
+
 //        try{
 //            AgentController restaurantGatewayAgent = jadeContainer.createNewAgent("gatewayAgent",
 //                    "com.project.restaurantbooking.agent.RestaurantGatewayAgent",

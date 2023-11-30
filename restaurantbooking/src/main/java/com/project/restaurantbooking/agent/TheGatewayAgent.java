@@ -11,6 +11,8 @@ import jade.domain.FIPAException;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 import jade.wrapper.gateway.GatewayAgent;
+import lombok.SneakyThrows;
+import org.json.JSONObject;
 import org.springframework.context.ApplicationContext;
 
 public class TheGatewayAgent extends GatewayAgent {
@@ -24,24 +26,44 @@ public class TheGatewayAgent extends GatewayAgent {
         System.out.println("MyGatewayAgent - setup - Agent " + getAID().getName() + " is ready.");
 //        ApplicationContext context = ApplicationContextProvider.getApplicationContext();
 //        System.out.println("MyGatewayAgent - setup - Context:"+ context);
-        addBehaviour(new OneShotBehaviour() {
+
+//        addBehaviour(new OneShotBehaviour() {
+//            @Override
+//            public void action() {
+//                ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
+//                msg.addReceiver(new AID("restaurantAgent", AID.ISLOCALNAME));
+//                String msgJSON = String.format("""
+//                        {
+//                            "correlationId": "InitialMessage",
+//                            "targetAgent": "restaurantAgent",
+//                            "data": "Initial message from MyGatewayAgent."
+//                        }
+//                        """);
+//                msg.setContent(msgJSON);
+//                send(msg);
+//            }
+//        });
+
+        addBehaviour(new CyclicBehaviour(this) {
+            @SneakyThrows
             @Override
             public void action() {
-                ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
-                msg.addReceiver(new AID("restaurantAgent", AID.ISLOCALNAME));
-                String msgJSON = String.format("""
-                        {
-                            "correlationId": "InitialMessage",
-                            "targetAgent": "restaurantAgent",
-                            "data": "Initial message from MyGatewayAgent."
-                        }
-                        """);
-                msg.setContent(msgJSON);
-                send(msg);
+                System.out.println("\n=== MyGatewayAgent: Receiving Msg ====\n");
+                ACLMessage msg = receive();
+                if (msg != null) {
+                    System.out.println("\n=== MyGatewayAgent: Msg Rcd ====\n"+msg);
+                    // Process incoming messages
+                    String content = msg.getContent();
+                    JSONObject json = new JSONObject(content);
+                    String correlationId = json.getString("correlationId");
+
+                    String responseToController = "Reservation request was processed";
+
+                } else {
+                    block();
+                }
             }
         });
-
-
     }
 
     @Override

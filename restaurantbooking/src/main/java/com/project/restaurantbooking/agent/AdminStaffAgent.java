@@ -13,13 +13,13 @@ import java.util.Optional;
 @Service
 public class AdminStaffAgent extends StaffAgent{
 
-    public AdminStaffAgent(){
-        super();
-    }
+//    public AdminStaffAgent(){
+//        super();
+//    }
 
-    public AdminStaffAgent(StaffRepository staffRepository){
-        super(staffRepository);
-    }
+//    public AdminStaffAgent(StaffRepository staffRepository){
+//        super(staffRepository);
+//    }
 
     //Staff repository CRUD ops.
     //TODO: implement as behaviours in setup.

@@ -1,1 +1,5 @@
+<<<<<<< HEAD
 http://fedora:7778/acc
+=======
+http://node-1w7jr9yddl0wnb4sw7d3lzpv3.ipv6.telus.net:7778/acc
+>>>>>>> main

@@ -4,6 +4,8 @@ import com.project.restaurantbooking.agent.AdminStaffAgent;
 import com.project.restaurantbooking.agent.StaffAgent;
 import com.project.restaurantbooking.entity.Shift;
 import com.project.restaurantbooking.entity.Staff;
+import com.project.restaurantbooking.messagetemplates.AddStaffResponse;
+import com.project.restaurantbooking.service.StaffService;
 import jade.core.*;
 import jade.core.Agent;
 import jade.core.Runtime;
@@ -12,24 +14,26 @@ import jade.wrapper.AgentController;
 import jade.wrapper.ContainerController;
 import jade.wrapper.StaleProxyException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 @RestController
 @CrossOrigin({"*"})
 public class StaffController extends Agent{
 
     @Autowired
-    private StaffAgent staffAgent;
+    private StaffService staffService;
+
+//    @Autowired
+//    private AdminStaffAgent adminStaffAgent;
 
     @Autowired
-    private AdminStaffAgent adminStaffAgent;
-
-    @Autowired
-    public StaffController(StaffAgent staffAgent){
-        this.staffAgent = staffAgent;
+    public StaffController(StaffService staffService){
+        this.staffService = staffService;
     }
 
     @GetMapping({"/"})
@@ -38,61 +42,39 @@ public class StaffController extends Agent{
     }
 
     @PostMapping("/api/v1/login")
-    public StaffAgent login(@RequestParam String username, @RequestParam String password) {
-        //Create new staff agent with authenticate ability.
-        Runtime runtime = Runtime.instance();
-        Profile profile = new ProfileImpl();
-        profile.setParameter(Profile.MAIN_HOST, "localhost");
-        //change this to refer to restaurant container instead of creating main container.
-        ContainerController container = runtime.createMainContainer(profile);
-        String agentName = username + "-sa";
-
-        StaffAgent staff = null;
-        try {
-            AgentController agentController = container.createNewAgent(agentName, "com.project.restaurantbooking.agent.StaffAgent", null);
-            //Run authenticate function on new staff agent.
-            staff = staffAgent.authenticate(username, password);
-
-            if (staff == null) {
-                //Deregister and kill the agent.
-                killStaffAgent(agentName);
-            }
-
-        } catch (StaleProxyException e) {
-            e.printStackTrace();
-        }
-
-        //Return staff agent if successful.
-        return staff;
+    public CompletableFuture<Optional<Staff>> login(@RequestParam String username, @RequestParam String password) {
+        CompletableFuture<Optional<Staff>> loginStaff = staffService.login(username, password);
+        return loginStaff;
     }
 
     @PostMapping("/api/v1/adminlogin")
     public AdminStaffAgent adminLogin(@RequestParam String username, @RequestParam String password) {
-        //Create new staff agent with authenticate ability.
-        Runtime runtime = Runtime.instance();
-        Profile profile = new ProfileImpl();
-        profile.setParameter(Profile.MAIN_HOST, "localhost");
-        //change this to refer to restaurant container instead of creating main container.
-        ContainerController container = runtime.createMainContainer(profile);
-        String agentName = username + "-sa";
-
-        AdminStaffAgent adminStaff = null;
-        try {
-            AgentController agentController = container.createNewAgent(agentName, "com.project.restaurantbooking.agent.AdminStaffAgent", null);
-            //Run authenticate function on new staff agent.
-            adminStaff = (AdminStaffAgent) adminStaffAgent.authenticate(username, password);
-
-            if (adminStaff == null) {
-                //Deregister and kill the agent.
-                killStaffAgent(agentName);
-            }
-
-        } catch (StaleProxyException e) {
-            e.printStackTrace();
-        }
-
-        //Return staff agent if successful.
-        return adminStaff;
+//        //Create new staff agent with authenticate ability.
+//        Runtime runtime = Runtime.instance();
+//        Profile profile = new ProfileImpl();
+//        profile.setParameter(Profile.MAIN_HOST, "localhost");
+//        //change this to refer to restaurant container instead of creating main container.
+//        ContainerController container = runtime.createMainContainer(profile);
+//        String agentName = username + "-sa";
+//
+//        AdminStaffAgent adminStaff = null;
+//        try {
+//            AgentController agentController = container.createNewAgent(agentName, "com.project.restaurantbooking.agent.AdminStaffAgent", null);
+//            //Run authenticate function on new staff agent.
+//            adminStaff = (AdminStaffAgent) adminStaffAgent.authenticate(username, password);
+//
+//            if (adminStaff == null) {
+//                //Deregister and kill the agent.
+//                killStaffAgent(agentName);
+//            }
+//
+//        } catch (StaleProxyException e) {
+//            e.printStackTrace();
+//        }
+//
+//        //Return staff agent if successful.
+//        return adminStaff;
+        return null;
     }
 
     @PostMapping("/api/v1/logout")
@@ -102,21 +84,21 @@ public class StaffController extends Agent{
     }
 
     @PostMapping("api/v1/addstaff")
-    public void addStaff(@RequestBody Staff newStaff){
-        adminStaffAgent.addStaff(newStaff);
+    public CompletableFuture<AddStaffResponse> addStaff(@RequestParam String username, @RequestBody Staff newStaff){
+        return staffService.addStaff(username, newStaff);
     }
 
     @PostMapping("api/v1/deletestaff")
     public void deleteStaff(@RequestParam(required = false) Long id, @RequestParam(required = false) String username){
-        if(id != null){
-            this.adminStaffAgent.deleteStaffById(id);
-        }
-        else if(username != null){
-            this.adminStaffAgent.deleteStaffByUsername(username);
-        }
-        else {
-            throw new IllegalArgumentException("No staff information provided.");
-        }
+//        if(id != null){
+//            this.adminStaffAgent.deleteStaffById(id);
+//        }
+//        else if(username != null){
+//            this.adminStaffAgent.deleteStaffByUsername(username);
+//        }
+//        else {
+//            throw new IllegalArgumentException("No staff information provided.");
+//        }
     }
 
     @PostMapping("api/v1/changestaff")
@@ -128,7 +110,7 @@ public class StaffController extends Agent{
                             @RequestParam(required = false) String newPassword){
         Long tempRestaurantID = Long.valueOf(1);
         Staff staffChange = new Staff(newFirstName, newLastName, newUsername, changeAdmin, newPassword);
-        adminStaffAgent.changeStaffAttributes(staffID, staffChange);
+        // adminStaffAgent.changeStaffAttributes(staffID, staffChange);
 
     }
 
@@ -139,10 +121,10 @@ public class StaffController extends Agent{
                             @RequestParam(required = false) ArrayList<Shift> timeslots){
         if(timeslots == null){
             //use empty timeslots
-            adminStaffAgent.createEmptyTable(restaurantId, tableOccupancyNum, available);
+//            adminStaffAgent.createEmptyTable(restaurantId, tableOccupancyNum, available);
         }
         else{
-            adminStaffAgent.createTable(restaurantId, tableOccupancyNum, available, timeslots);
+//            adminStaffAgent.createTable(restaurantId, tableOccupancyNum, available, timeslots);
         }
     }
 

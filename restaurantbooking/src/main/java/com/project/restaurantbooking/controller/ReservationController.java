@@ -1,5 +1,6 @@
 package com.project.restaurantbooking.controller;
 
+import com.project.restaurantbooking.messagetemplates.AgentCommand;
 import com.project.restaurantbooking.repo.ReservationRepository;
 import jade.wrapper.gateway.JadeGateway;
 import org.springframework.http.HttpStatus;
@@ -24,13 +25,13 @@ public class ReservationController {
     }
 
     @PostMapping("/create/{food_name}/{wait_time}")
-    public ResponseEntity<CompletableFuture<String>> makeReservation(@PathVariable String food_name, @PathVariable long wait_time) {
+    public ResponseEntity<CompletableFuture<Object>> makeReservation(@PathVariable String food_name, @PathVariable long wait_time) {
         String correlationId = UUID.randomUUID().toString();
         AgentResponseHolder responseHolder = new AgentResponseHolder();
         responseMap.put(correlationId, responseHolder);
 
         System.out.println("\nReservController: ReservationRequest Received.\n");
-        String command = String.format("""
+        String msgJson = String.format("""
         {
             "correlationId": "%s",
             "targetAgent": "restaurantAgent",
@@ -41,23 +42,23 @@ public class ReservationController {
         }
         """, correlationId, food_name, wait_time);
 
-//        AgentCommand agentCommand = new AgentCommand("restaurantAgent", command);
-        System.out.println("AC Object: "+ command.toString());
+        AgentCommand agentCommand = new AgentCommand("restaurantAgent", msgJson, correlationId);
+        System.out.println("AC Object: "+ agentCommand.toString());
 
         try {
             System.out.println("\nReservController: Sending Command to GatewayAgent.\n");
             System.out.println("\nResV Controller- Gateway isActive?:  "+ JadeGateway.isGatewayActive() +"\n");
-            System.out.println("\nReservControllerCommand: "+ command.toString() +"\n");
-            // Send the message to the GatewayAgent
-            JadeGateway.execute(command);
-//            Object result = command.getR
-            System.out.println("\nReservController: Command Sent to GatewayAgent.\n");
+            System.out.println("\nReservControllerCommand: "+ agentCommand.toString() +"\n");
 
-//            Object result = command.getResult();
-            System.out.println("\nReservController: Result received."+ "result" +"\n");
+            JadeGateway.execute(agentCommand);
+
+            CompletableFuture<Object> result = agentCommand.getFutureResult();
+
+            System.out.println("\nReservController: Command Sent to GatewayAgent.");
+            System.out.println("ReservController: Result received."+ result +"\n");
 
 
-            return ResponseEntity.ok(responseHolder.getResponseFuture());
+            return ResponseEntity.ok(result);
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)

@@ -1,80 +1,60 @@
 package com.project.restaurantbooking.agent;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.project.restaurantbooking.SpringContextProvider;
 import com.project.restaurantbooking.messagetemplates.AddStaffRequest;
+import com.project.restaurantbooking.messagetemplates.AgentCommand;
 import com.project.restaurantbooking.messagetemplates.LoginRequest;
 import jade.core.AID;
 import jade.core.behaviours.CyclicBehaviour;
 import jade.core.behaviours.OneShotBehaviour;
 import jade.domain.DFService;
+import jade.domain.FIPAAgentManagement.DFAgentDescription;
+import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.domain.FIPAException;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 import jade.wrapper.gateway.GatewayAgent;
 import lombok.SneakyThrows;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.context.ApplicationContext;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 public class TheGatewayAgent extends GatewayAgent {
-
-//    protected void setup(){
-//        System.out.println("Restaurant agent started.");
-//    }
-
+    private Map<String, AgentCommand> pendingCommands = new ConcurrentHashMap<>();
 
 //    @Override
 //    protected void setup() {
-//        System.out.println("\nMyGatewayAgent - setup - Agent " + getAID().getName() + " is ready.\n");
-////        ApplicationContext context = ApplicationContextProvider.getApplicationContext();
-////        System.out.println("MyGatewayAgent - setup - Context:"+ context);
+//        // Your existing setup code here...
 //
-//        addBehaviour(new OneShotBehaviour() {
-//            @Override
-//            public void action() {
-//                ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
-//                msg.addReceiver(new AID("restaurantAgent", AID.ISLOCALNAME));
-//                String msgJSON = String.format("""
-//                        {
-//                            "correlationId": "InitialMessage",
-//                            "targetAgent": "restaurantAgent",
-//                            "data": "Initial message from MyGatewayAgent."
-//                        }
-//                        """);
-//                msg.setContent(msgJSON);
-//                send(msg);
-//            }
-//        });
+//        // Register the agent in the Directory Facilitator (DF)
+//        System.out.println("\nStarting gateway agent.\n");
+//        DFAgentDescription dfd = new DFAgentDescription();
+//        dfd.setName(getAID());
+//        ServiceDescription sd = new ServiceDescription();
+//        sd.setType("gateway-agent");
+//        sd.setName(getLocalName() + "-gateway-agent");
+//        dfd.addServices(sd);
 //
-//        addBehaviour(new CyclicBehaviour() {
-//            @SneakyThrows
-//            @Override
-//            public void action() {
-//                System.out.println("\n=== MyGatewayAgent: Receiving Msg ====\n");
-//                ACLMessage msg = receive();
-//                System.out.println("\n=== MyGatewayAgent: Receiving Msg ====2\n");
-//                System.out.println("\n=== MyGatewayAgent: Msg Rcd ====\n"+msg);
-//                if (msg != null) {
-//                    System.out.println("\n=== MyGatewayAgent: Msg Rcd ====\n"+msg);
-//                    // Process incoming messages
-//                    String content = msg.getContent();
-//                    JSONObject json = new JSONObject(content);
-//                    String correlationId = json.getString("correlationId");
-//
-//                    String responseToController = "Reservation request was processed";
-//
-//                } else {
-//                    System.out.println("\nMessage is null: "+ msg +"\n");
-//                    block();
-//                }
-//            }
-//        });
+//        try {
+//            DFService.register(this, dfd);
+//        } catch (FIPAException fe) {
+//            fe.printStackTrace();
+//        }
 //    }
+
+
+
 
     @Override
     protected void processCommand(Object command){
         //If chain of checking command types given by messagetemplates
         System.out.println("Reaching gateway agent.");
         ObjectMapper objectMapper = new ObjectMapper();
+
         if(command instanceof LoginRequest){
             System.out.println("Reaching gateway agent.");
             LoginRequest loginRequest = (LoginRequest) command;
@@ -138,54 +118,94 @@ public class TheGatewayAgent extends GatewayAgent {
 //            System.out.println("\n=== GatewayAgent: Response sent back to controller ===\n");
 //        }
 
-        if (command instanceof String) {
-            System.out.println("GatewayAgent - command: "+ command.toString());
-            String reserveRequest = (String) command;
+        if (command instanceof AgentCommand) {
+            System.out.println("\nGatewayAgent - command: " + command);
+            AgentCommand agentCommand = (AgentCommand) command;
+            pendingCommands.put(agentCommand.getCorrelationId(), agentCommand);
+
             ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
             msg.addReceiver(new AID("restaurantAgent", AID.ISLOCALNAME));
-//            String reserveRequestJSON = null;
+            String agentCommandJSON;
+
             try {
-//                reserveRequestJSON = objectMapper.writeValueAsString(reserveRequest);
+                agentCommandJSON = objectMapper.writeValueAsString(agentCommand);
                 msg.setConversationId("reserve");
-                msg.setContent(reserveRequest);
-
+                msg.setProtocol("reserve");
+                msg.setContent(agentCommandJSON);
                 send(msg);
-
-//                ACLMessage reply = blockingReceive(MessageTemplate.MatchInReplyTo("reserve"));
-//
-//                if (reply != null) {
-//                    System.out.println("\nReply from RestAgent to Gateway\n"+ reply);
-//                } else {
-//                    System.out.println("\nGatewayAgent: No reply received\n");
-////                    reserveRequest.setResult("No reply received");
-//                }
+                System.out.println("\nGateway: Msg Sent to RestAgent\n");
             } catch (Exception e) {
-                System.out.println("Error: " + e.getMessage());
-//                reserveRequest.setResult("Error: " + e.getMessage());
+                System.out.println("Error: " + e.getClass().getSimpleName() + " - " + e.getMessage());
+                agentCommand.completeFutureResult("Error: " + e.getMessage());
+                pendingCommands.remove(agentCommand.getCorrelationId());
+                this.releaseCommand(command);
+            } finally {
+//                agentCommand.completeFutureResult(result);
+//                this.releaseCommand(command);
+                System.out.println("\nGatewayAgent: Command Released\n");
             }
-            this.releaseCommand(command);
             System.out.println("\n=== GatewayAgent: Response sent back to controller ===\n");
         }
-        else{
+        else {
             System.out.println("Not working.");
         }
     }
 
+
     @Override
-    protected void takeDown() {
-        System.out.println("Agent " + getAID().getName() + " is shutting down.");
-        ACLMessage shutdownMsg = new ACLMessage(ACLMessage.INFORM);
-        shutdownMsg.addReceiver(new AID("restaurantAgent", AID.ISLOCALNAME));
-        shutdownMsg.setContent("Agent " + getAID().getName() + " is shutting down.");
-        send(shutdownMsg);
+    protected void setup() {
+        super.setup();
+        System.out.println("\nGatewayAgent - setup - Agent " + getAID().getName() + " is ready.\n");
+//        ApplicationContext context = ApplicationContextProvider.getApplicationContext();
+//        System.out.println("MyGatewayAgent - setup - Context:"+ context);
+//        addBehaviour(new OneShotBehaviour() {
+//            @Override
+//            public void action() {
+//                ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
+//                msg.addReceiver(new AID("restaurantAgent", AID.ISLOCALNAME));
+//                String msgJSON = String.format("""
+//                        {
+//                            "correlationId": "InitialMessage",
+//                            "targetAgent": "restaurantAgent",
+//                            "data": "Initial message from MyGatewayAgent."
+//                        }
+//                        """);
+//                msg.setContent(msgJSON);
+//                send(msg);
+//            }
+//        });
 
-        try {
-            DFService.deregister(this);
-        }
-        catch (FIPAException fe) {
-            fe.printStackTrace();
-        }
+        addBehaviour(new CyclicBehaviour() {
+            @SneakyThrows
+            @Override
+            public void action() {
+                System.out.println("\n=== GatewayAgent: Receiving Msg ====\n");
 
-        super.takeDown();
+                ACLMessage msg = receive();
+                if (msg != null) {
+                    System.out.println("\n=== GatewayAgent: Msg Rcd ====\n"+msg);
+                    // Process incoming messages
+                    String content = msg.getContent();
+                    JSONObject json = new JSONObject(content);
+                    String correlationId = json.getString("correlationId");
+
+                    AgentCommand command = pendingCommands.get(correlationId);
+                    if (command != null) {
+                        command.completeFutureResult(content);
+                        pendingCommands.remove(correlationId);
+                        TheGatewayAgent.this.releaseCommand(command);
+                    } else {
+                        System.out.println("No matching command found for correlationId: " + correlationId);
+                    }
+
+                } else {
+                    System.out.println("\nMessage is null: "+ msg +"\n");
+                    block();
+                }
+            }
+        });
     }
+
+
 }
+

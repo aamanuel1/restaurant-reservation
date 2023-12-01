@@ -54,6 +54,7 @@ public class RestaurantAgent extends Agent {
 
             if (msg != null) {
                 System.out.println("\n=== RestaurantAgent -- Msg Rcd. ===\n"+ msg);
+                System.out.println("\nRestaurantAgent: Msg Sender"+ msg.getSender() +"\n");
                 // Process the incoming message
                 // Extract details, make a reservation, etc.
                 String content = msg.getContent();
@@ -71,6 +72,8 @@ public class RestaurantAgent extends Agent {
                 ACLMessage reply = msg.createReply();
                 reply.setPerformative(ACLMessage.INFORM);
                 reply.setContent(responseToGateway);
+                reply.setConversationId("reserve");
+                reply.setProtocol("reserve");
                 myAgent.send(reply);
                 System.out.println("\nReply Sent\n");
             } else {

@@ -48,7 +48,7 @@ public class ReservationController {
         try {
             System.out.println("\nReservController: Sending Command to GatewayAgent.\n");
             System.out.println("\nResV Controller- Gateway isActive?:  "+ JadeGateway.isGatewayActive() +"\n");
-            System.out.println("\nReservControllerCommand: "+ agentCommand.toString() +"\n");
+            System.out.println("\nReservControllerCommand: "+ agentCommand +"\n");
 
             JadeGateway.execute(agentCommand);
 
@@ -56,7 +56,6 @@ public class ReservationController {
 
             System.out.println("\nReservController: Command Sent to GatewayAgent.");
             System.out.println("ReservController: Result received."+ result +"\n");
-
 
             return ResponseEntity.ok(result);
         } catch (Exception e) {

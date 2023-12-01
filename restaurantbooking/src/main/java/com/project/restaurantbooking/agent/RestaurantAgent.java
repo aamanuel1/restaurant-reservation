@@ -1,6 +1,8 @@
 package com.project.restaurantbooking.agent;
 
 import com.project.restaurantbooking.SpringContextProvider;
+import com.project.restaurantbooking.repo.ReservationRepository;
+import com.project.restaurantbooking.repo.RestaurantRepository;
 import jade.core.Agent;
 import jade.core.behaviours.CyclicBehaviour;
 import jade.domain.DFService;
@@ -11,11 +13,19 @@ import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 import lombok.SneakyThrows;
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.stereotype.Service;
 
+
+@Service
 public class RestaurantAgent extends Agent {
-    // Consider using a data structure to store restaurant information
-    // For example, a list or map of available tables, reservations, etc.
+
+    @Autowired
+    private RestaurantRepository restaurantRepository;
+    @Autowired
+    private ReservationRepository reservationRepository;
+
 
     @Override
     protected void setup() {

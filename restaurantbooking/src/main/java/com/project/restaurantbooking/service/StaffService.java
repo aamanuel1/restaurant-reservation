@@ -1,13 +1,11 @@
 package com.project.restaurantbooking.service;
 
-import ch.qos.logback.core.encoder.EchoEncoder;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.project.restaurantbooking.entity.Staff;
 import com.project.restaurantbooking.messagetemplates.*;
 import jade.core.AID;
 import jade.lang.acl.ACLMessage;
 import jade.wrapper.gateway.JadeGateway;
-import jdk.jshell.SourceCodeAnalysis;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.integration.annotation.ServiceActivator;
@@ -29,8 +27,6 @@ public class StaffService {
 
     private final ConcurrentHashMap<String, CompletableFuture<?>> pendingRequests = new ConcurrentHashMap<>();
 
-//    private final ContainerController jadeContainer;
-
     @Autowired
     @Qualifier("StaffAgentRequestChannel")
     private DirectChannel staffAgentRequestChannel;
@@ -39,23 +35,12 @@ public class StaffService {
     @Qualifier("StaffAgentResponseChannel")
     private DirectChannel staffAgentResponseChannel;
 
-//    @Autowired
-//    public StaffService(ContainerController jadeContainer){
-//        this.jadeContainer = jadeContainer;
-//    }
-
     @ServiceActivator(inputChannel = "staffAgentRequestChannel")
     public void sendRequestToStaffAgent(String message){
         //Convert to ACLMessage and send to JADE Gateway
         ACLMessage agentMessage = new ACLMessage(ACLMessage.REQUEST);
         agentMessage.addReceiver(new AID("GatewayAgent", AID.ISLOCALNAME));
         agentMessage.setContent(message);
-//        try{
-//            AgentController gatewayAgent = jadeContainer.getAgent("GatewayAgent");
-//            gatewayAgent.putO2AObject(agentMessage, false);
-//        } catch(Exception e){
-//            e.printStackTrace();
-//        }
     }
 
     @ServiceActivator(inputChannel = "StaffAgentReplyChannel")
@@ -124,6 +109,7 @@ public class StaffService {
         loginRequest.setUsername(username);
         loginRequest.setPassword(password);
 
+        //Send through the JadeGateway API
         try{
             JadeGateway.execute(loginRequest);
         } catch (Exception e) {
@@ -140,6 +126,7 @@ public class StaffService {
         CompletableFuture<AddStaffResponse> futureAddStaffResponse = new CompletableFuture<>();
         pendingRequests.put(requestId, futureAddStaffResponse);
 
+        //Form the request object for add staff. then send through the gateway.
         AddStaffRequest addStaffRequest = new AddStaffRequest();
         addStaffRequest.setRequestId(requestId);
         addStaffRequest.setOperation("add-staff");
@@ -150,11 +137,13 @@ public class StaffService {
         }catch(Exception e){
             e.printStackTrace();
         }
+        //Return the future.
         return futureAddStaffResponse;
 
     }
 
     public CompletableFuture<DeleteStaffResponse> deleteStaffById(String username, Long deleteId){
+        //Similar to other methods.
         String requestId = UUID.randomUUID().toString();
         CompletableFuture<DeleteStaffResponse> futureDeleteStaffResponse = new CompletableFuture<>();
         pendingRequests.put(requestId, futureDeleteStaffResponse);

@@ -5,7 +5,6 @@ import com.project.restaurantbooking.SpringContextProvider;
 import com.project.restaurantbooking.behaviours.AddStaffBehaviour;
 import com.project.restaurantbooking.behaviours.DeleteStaffBehaviour;
 import com.project.restaurantbooking.behaviours.LoginBehaviour;
-import com.project.restaurantbooking.entity.Staff;
 import com.project.restaurantbooking.repo.StaffRepository;
 import jade.core.Agent;
 import jade.domain.DFService;
@@ -14,8 +13,6 @@ import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.domain.FIPAException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
-
-import java.util.Optional;
 
 @Service
 public class StaffAgent extends Agent {

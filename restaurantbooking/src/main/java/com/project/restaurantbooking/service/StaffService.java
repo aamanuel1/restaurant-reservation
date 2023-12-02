@@ -1,14 +1,13 @@
 package com.project.restaurantbooking.service;
 
+import ch.qos.logback.core.encoder.EchoEncoder;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.project.restaurantbooking.entity.Staff;
-import com.project.restaurantbooking.messagetemplates.AddStaffRequest;
-import com.project.restaurantbooking.messagetemplates.AddStaffResponse;
-import com.project.restaurantbooking.messagetemplates.LoginRequest;
-import com.project.restaurantbooking.messagetemplates.LoginResponse;
+import com.project.restaurantbooking.messagetemplates.*;
 import jade.core.AID;
 import jade.lang.acl.ACLMessage;
 import jade.wrapper.gateway.JadeGateway;
+import jdk.jshell.SourceCodeAnalysis;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.integration.annotation.ServiceActivator;
@@ -75,7 +74,6 @@ public class StaffService {
     }
 
     private Object extractObjectFromResponse(String message){
-//        String unknownJson = message.getContent();
         ObjectMapper objectMapper = new ObjectMapper();
 
         //Try and catch to guess the response type in messagetemplates until we get the right one.
@@ -85,6 +83,9 @@ public class StaffService {
         } catch(IOException ignore){}
         try{
             return objectMapper.readValue(message, AddStaffResponse.class);
+        } catch(IOException ignore){};
+        try{
+            return objectMapper.readValue(message, DeleteStaffResponse.class);
         } catch(IOException ignore){};
 
         //default to null.
@@ -102,6 +103,11 @@ public class StaffService {
         if(response instanceof AddStaffResponse){
             AddStaffResponse addStaffResponse = (AddStaffResponse) response;
             ((CompletableFuture<AddStaffResponse>) futurePromise).complete((AddStaffResponse) addStaffResponse);
+        }
+
+        if(response instanceof DeleteStaffResponse){
+            DeleteStaffResponse deleteStaffResponse = (DeleteStaffResponse) response;
+            ((CompletableFuture<DeleteStaffResponse>) futurePromise).complete((DeleteStaffResponse) deleteStaffResponse);
         }
     }
 
@@ -146,6 +152,47 @@ public class StaffService {
         }
         return futureAddStaffResponse;
 
+    }
+
+    public CompletableFuture<DeleteStaffResponse> deleteStaffById(String username, Long deleteId){
+        String requestId = UUID.randomUUID().toString();
+        CompletableFuture<DeleteStaffResponse> futureDeleteStaffResponse = new CompletableFuture<>();
+        pendingRequests.put(requestId, futureDeleteStaffResponse);
+
+        DeleteStaffRequest deleteStaffRequest = new DeleteStaffRequest();
+        deleteStaffRequest.setRequestId(requestId);
+        deleteStaffRequest.setOperation("delete-staff");
+        deleteStaffRequest.setUsername(username);
+        deleteStaffRequest.setDeleteByStaffId(deleteId);
+        deleteStaffRequest.setDeleteByStaffUsername("");
+        try{
+            JadeGateway.execute(deleteStaffRequest);
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+
+        return futureDeleteStaffResponse;
+    }
+
+
+    public CompletableFuture<DeleteStaffResponse> deleteStaffByUsername(String username, String deleteUsername){
+        String requestId = UUID.randomUUID().toString();
+        CompletableFuture<DeleteStaffResponse> futureDeleteStaffResponse = new CompletableFuture<>();
+        pendingRequests.put(requestId, futureDeleteStaffResponse);
+
+        DeleteStaffRequest deleteStaffRequest = new DeleteStaffRequest();
+        deleteStaffRequest.setRequestId(requestId);
+        deleteStaffRequest.setOperation("delete-staff");
+        deleteStaffRequest.setUsername(username);
+        deleteStaffRequest.setDeleteByStaffId(Long.valueOf(-1));
+        deleteStaffRequest.setDeleteByStaffUsername(deleteUsername);
+        try{
+            JadeGateway.execute(deleteStaffRequest);
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+
+        return futureDeleteStaffResponse;
     }
 
 }

@@ -53,8 +53,7 @@ public class AddStaffBehaviour extends CyclicBehaviour {
             boolean isAddSuccessful = false;
             if(isStaffAuthorized){
                 try{
-                    this.addStaff(addStaffRequest.getAddStaff());
-                    isAddSuccessful = true;
+                    isAddSuccessful = this.addStaff(addStaffRequest.getAddStaff());
                 }catch(Exception e){
                     e.printStackTrace();
                     isAddSuccessful = false;
@@ -84,7 +83,6 @@ public class AddStaffBehaviour extends CyclicBehaviour {
                     .setHeader("requestId", addStaffMsg.getConversationId())
                     .build();
             staffAgentResponseChannel.send(addStaffSpringMessage);
-
         }
         block();
     }

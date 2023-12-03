@@ -2,6 +2,7 @@ package com.project.restaurantbooking.agent;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.project.restaurantbooking.messagetemplates.AddStaffRequest;
+import com.project.restaurantbooking.messagetemplates.ChangeStaffRequest;
 import com.project.restaurantbooking.messagetemplates.DeleteStaffRequest;
 import com.project.restaurantbooking.messagetemplates.LoginRequest;
 import jade.core.AID;
@@ -70,6 +71,22 @@ public class RestaurantGatewayAgent extends GatewayAgent {
             }
             send(deleteStaffRequestMessage);
             this.releaseCommand(deleteStaffRequest);
+        }
+        if(command instanceof ChangeStaffRequest){
+            ChangeStaffRequest changeStaffRequest = (ChangeStaffRequest) command;
+            ACLMessage changeStaffRequestMessage = new ACLMessage(ACLMessage.REQUEST);
+            changeStaffRequestMessage.addReceiver(new AID("StaffAgent", AID.ISLOCALNAME));
+            String changeStaffRequestJSON = null;
+            try{
+                changeStaffRequestJSON = objectMapper.writeValueAsString(changeStaffRequest);
+                changeStaffRequestMessage.setConversationId(changeStaffRequest.getRequestId());
+                changeStaffRequestMessage.setContent((changeStaffRequestJSON));
+                changeStaffRequestMessage.setProtocol((changeStaffRequest.getOperation()));
+            }catch(Exception e){
+                e.printStackTrace();
+            }
+            send(changeStaffRequestMessage);
+            this.releaseCommand(changeStaffRequest);
         }
         else{
             System.out.println("Not working.");

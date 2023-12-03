@@ -3,6 +3,7 @@ package com.project.restaurantbooking.controller;
 import com.project.restaurantbooking.entity.Shift;
 import com.project.restaurantbooking.entity.Staff;
 import com.project.restaurantbooking.messagetemplates.AddStaffResponse;
+import com.project.restaurantbooking.messagetemplates.ChangeStaffResponse;
 import com.project.restaurantbooking.messagetemplates.DeleteStaffResponse;
 import com.project.restaurantbooking.service.StaffService;
 import jade.core.Agent;;
@@ -61,16 +62,17 @@ public class StaffController extends Agent{
         }
     }
 
+    @GetMapping("api/v1/searchstaff")
+    public void searchStaff(){
+
+    }
+
     @PostMapping("api/v1/changestaff")
-    public void changeStaff(@RequestParam Long staffID,
-                            @RequestParam(required = false) String newFirstName,
-                            @RequestParam(required = false) String newLastName,
-                            @RequestParam(required = false) String newUsername,
-                            @RequestParam(required = false) boolean changeAdmin,
-                            @RequestParam(required = false) String newPassword){
+    public CompletableFuture<ChangeStaffResponse> changeStaff(@RequestParam String adminUsername,
+                                                              @RequestParam Long staffID,
+                                                              @RequestBody Staff changeStaffAttributes){
         Long tempRestaurantID = Long.valueOf(1);
-        Staff staffChange = new Staff(newFirstName, newLastName, newUsername, changeAdmin, newPassword);
-        // adminStaffAgent.changeStaffAttributes(staffID, staffChange);
+        return staffService.changeStaff(adminUsername, staffID, changeStaffAttributes);
 
     }
 

@@ -72,6 +72,9 @@ public class StaffService {
         try{
             return objectMapper.readValue(message, DeleteStaffResponse.class);
         } catch(IOException ignore){};
+        try{
+            return objectMapper.readValue(message, ChangeStaffResponse.class);
+        } catch(IOException ignore){};
 
         //default to null.
         return null;
@@ -93,6 +96,11 @@ public class StaffService {
         if(response instanceof DeleteStaffResponse){
             DeleteStaffResponse deleteStaffResponse = (DeleteStaffResponse) response;
             ((CompletableFuture<DeleteStaffResponse>) futurePromise).complete((DeleteStaffResponse) deleteStaffResponse);
+        }
+
+        if(response instanceof ChangeStaffResponse){
+            ChangeStaffResponse changeStaffResponse = (ChangeStaffResponse) response;
+            ((CompletableFuture<ChangeStaffResponse>) futurePromise).complete((ChangeStaffResponse) changeStaffResponse);
         }
     }
 
@@ -182,6 +190,27 @@ public class StaffService {
         }
 
         return futureDeleteStaffResponse;
+    }
+
+    public CompletableFuture<ChangeStaffResponse> changeStaff(String adminUsername, Long staffId, Staff changeStaffAttributes){
+        String requestId = UUID.randomUUID().toString();
+        CompletableFuture<ChangeStaffResponse> futureChangeStaffResponse = new CompletableFuture<>();
+        pendingRequests.put(requestId, futureChangeStaffResponse);
+
+        ChangeStaffRequest changeStaffRequest = new ChangeStaffRequest();
+        changeStaffRequest.setRequestId(requestId);
+        changeStaffRequest.setOperation("change-staff");
+        changeStaffRequest.setUsername(adminUsername);
+        changeStaffRequest.setChangeStaffId(staffId);
+        changeStaffRequest.setChangeStaff(changeStaffAttributes);
+        try{
+            JadeGateway.execute(changeStaffRequest);
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+
+        return futureChangeStaffResponse;
+
     }
 
 }

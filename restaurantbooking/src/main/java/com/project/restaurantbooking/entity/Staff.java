@@ -30,7 +30,7 @@ public class Staff implements Serializable {
 
     private String username;
 
-    private boolean isAdmin;
+    private Boolean isAdmin;
 
     private String password;
 

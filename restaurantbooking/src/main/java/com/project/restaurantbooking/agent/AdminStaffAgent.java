@@ -55,8 +55,8 @@ public class AdminStaffAgent extends StaffAgent{
             if(staffChange.getUsername().isBlank()){
                 staff.setUsername(staffChange.getUsername());
             }
-            if(staffChange.isAdmin() != staff.isAdmin()){
-                staff.setAdmin(staffChange.isAdmin());
+            if(staffChange.getIsAdmin() != staff.getIsAdmin()){
+                staff.setIsAdmin(staffChange.getIsAdmin());
             }
             if(staffChange.getPassword().isBlank()){
                 staff.setPassword(staffChange.getPassword());

@@ -117,7 +117,7 @@ public class AddStaffBehaviour extends CyclicBehaviour {
         if(staff.isEmpty()){
             return false;
         }
-        if(!staff.get().isAdmin()){
+        if(!staff.get().getIsAdmin()){
             return false;
         }
         return true;

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.springframework.boot</groupId>
@@ -14,7 +14,7 @@
 	<name>restaurantbooking</name>
 	<description>Spring Boot setup for Restaurant Reservation System</description>
 	<properties>
-<!--		<java.version>17</java.version>-->
+		<!--		<java.version>17</java.version>-->
 		<maven.compiler.source>18</maven.compiler.source>
 		<maven.compiler.target>18</maven.compiler.target>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -22,17 +22,17 @@
 
 	<!--Repository and dependency setup from https://jade-project.gitlab.io/page/download/
 	Note this is Jade 4.5.3 not 4.6.0.-->
-<!--	<repositories>-->
-<!--		<repository>-->
-<!--			<id>jitpack.io</id>-->
-<!--			<url>https://jitpack.io</url>-->
-<!--		</repository>-->
-		<!--Official JADE repository 4.6.0, but it doesn't work for some reason. Included in case of fixing.-->
-<!--		<repository>-->
-<!--			<id>tilab</id>-->
-<!--			<url>https://jade.tilab.com/maven/</url>-->
-<!--		</repository>-->
-<!--	</repositories>-->
+	<!--	<repositories>-->
+	<!--		<repository>-->
+	<!--			<id>jitpack.io</id>-->
+	<!--			<url>https://jitpack.io</url>-->
+	<!--		</repository>-->
+	<!--Official JADE repository 4.6.0, but it doesn't work for some reason. Included in case of fixing.-->
+	<!--		<repository>-->
+	<!--			<id>tilab</id>-->
+	<!--			<url>https://jade.tilab.com/maven/</url>-->
+	<!--		</repository>-->
+	<!--	</repositories>-->
 
 	<dependencies>
 		<dependency>
@@ -52,12 +52,12 @@
 			<artifactId>spring-session-core</artifactId>
 		</dependency>
 
-<!--		<dependency>-->
-<!--			<groupId>org.springframework.boot</groupId>-->
-<!--			<artifactId>spring-boot-docker-compose</artifactId>-->
-<!--			<scope>runtime</scope>-->
-<!--			<optional>true</optional>-->
-<!--		</dependency>-->
+		<!--		<dependency>-->
+		<!--			<groupId>org.springframework.boot</groupId>-->
+		<!--			<artifactId>spring-boot-docker-compose</artifactId>-->
+		<!--			<scope>runtime</scope>-->
+		<!--			<optional>true</optional>-->
+		<!--		</dependency>-->
 		<dependency>
 			<groupId>com.mysql</groupId>
 			<artifactId>mysql-connector-j</artifactId>
@@ -129,26 +129,26 @@
 		</dependency>
 		<!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-devtools
 		 removed due to classloader problems.-->
-<!--		<dependency>-->
-<!--			<groupId>org.springframework.boot</groupId>-->
-<!--			<artifactId>spring-boot-devtools</artifactId>-->
-<!--			<version>3.1.5</version>-->
-<!--		</dependency>-->
-        <dependency>
-            <groupId>javax.annotation</groupId>
-            <artifactId>javax.annotation-api</artifactId>
-            <version>1.3.2</version>
-        </dependency>
+		<!--		<dependency>-->
+		<!--			<groupId>org.springframework.boot</groupId>-->
+		<!--			<artifactId>spring-boot-devtools</artifactId>-->
+		<!--			<version>3.1.5</version>-->
+		<!--		</dependency>-->
 		<dependency>
 			<groupId>javax.annotation</groupId>
 			<artifactId>javax.annotation-api</artifactId>
 			<version>1.3.2</version>
 		</dependency>
-        <dependency>
-            <groupId>org.json</groupId>
-            <artifactId>org.json</artifactId>
-            <version>chargebee-1.0</version>
-        </dependency>
+		<dependency>
+			<groupId>javax.annotation</groupId>
+			<artifactId>javax.annotation-api</artifactId>
+			<version>1.3.2</version>
+		</dependency>
+		<dependency>
+			<groupId>org.json</groupId>
+			<artifactId>org.json</artifactId>
+			<version>chargebee-1.0</version>
+		</dependency>
 		<dependency>
 			<groupId>org.json</groupId>
 			<artifactId>org.json</artifactId>

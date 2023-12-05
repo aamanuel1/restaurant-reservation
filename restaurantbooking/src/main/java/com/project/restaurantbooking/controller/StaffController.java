@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
@@ -63,8 +64,13 @@ public class StaffController extends Agent{
     }
 
     @GetMapping("api/v1/searchstaff")
-    public void searchStaff(){
+    public Optional<Staff> searchStaff(@RequestParam String adminUsername, @RequestParam String findUsername){
+        return this.staffService.searchStaff(adminUsername, findUsername);
+    }
 
+    @GetMapping("api/v1/returnallstaff")
+    public List<Staff> returnAllStaff(@RequestParam String adminUsername){
+        return this.staffService.returnAllStaff(adminUsername);
     }
 
     @PostMapping("api/v1/changestaff")
@@ -79,14 +85,14 @@ public class StaffController extends Agent{
     @PostMapping("api/v1/addtable")
     public void createTable(@RequestParam Long restaurantId,
                             @RequestParam int tableOccupancyNum,
-                            @RequestParam boolean available,
+                            @RequestParam Boolean available,
                             @RequestParam(required = false) ArrayList<Shift> timeslots){
         if(timeslots == null){
             //use empty timeslots
-//            adminStaffAgent.createEmptyTable(restaurantId, tableOccupancyNum, available);
+            staffService.createEmptyTable(restaurantId, tableOccupancyNum, available);
         }
         else{
-//            adminStaffAgent.createTable(restaurantId, tableOccupancyNum, available, timeslots);
+            staffService.createTable(restaurantId, tableOccupancyNum, available, timeslots);
         }
     }
 

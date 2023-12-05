@@ -85,7 +85,7 @@ public class DeleteStaffBehaviour extends CyclicBehaviour {
         if (deleteStaffRequest.getDeleteByStaffId() == -1) {
             staffToDelete = searchStaffByUsername(deleteStaffRequest.getDeleteByStaffUsername());
         } else if (deleteStaffRequest.getDeleteByStaffUsername().equals("")) {
-            staffToDelete = serachStaffByStaffId(deleteStaffRequest.getDeleteByStaffId());
+            staffToDelete = searchStaffByStaffId(deleteStaffRequest.getDeleteByStaffId());
         }
 
         if(staffToDelete.isPresent()){
@@ -103,7 +103,7 @@ public class DeleteStaffBehaviour extends CyclicBehaviour {
         return staffRepository.findByUsername(username);
     }
 
-    public Optional<Staff> serachStaffByStaffId(Long staffId) {
+    public Optional<Staff> searchStaffByStaffId(Long staffId) {
         ApplicationContext context = SpringContextProvider.getApplicationContext();
         StaffRepository staffRepository = context.getBean(StaffRepository.class);
         return staffRepository.findById(staffId);

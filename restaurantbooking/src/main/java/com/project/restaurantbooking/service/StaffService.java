@@ -1,8 +1,10 @@
 package com.project.restaurantbooking.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.project.restaurantbooking.entity.Shift;
 import com.project.restaurantbooking.entity.Staff;
 import com.project.restaurantbooking.messagetemplates.*;
+import com.project.restaurantbooking.repo.StaffRepository;
 import jade.core.AID;
 import jade.lang.acl.ACLMessage;
 import jade.wrapper.gateway.JadeGateway;
@@ -13,8 +15,10 @@ import org.springframework.integration.channel.DirectChannel;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageHeaders;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -106,9 +110,8 @@ public class StaffService {
 
     public CompletableFuture<Optional<Staff>> login(String username, String password){
         //Store the future request in the pending requests hashmap.
-        String requestId = UUID.randomUUID().toString();
         CompletableFuture<Optional<Staff>> futureLoginResponse = new CompletableFuture<>();
-        pendingRequests.put(requestId, futureLoginResponse);
+        String requestId = this.storeRequest(futureLoginResponse);
 
         //Form the LoginRequest object for sending through the gateway.
         LoginRequest loginRequest = new LoginRequest();
@@ -130,9 +133,8 @@ public class StaffService {
 
     public CompletableFuture<AddStaffResponse> addStaff(String username, Staff newStaff){
         //Store the future request in the pending requests hashmap.
-        String requestId = UUID.randomUUID().toString();
         CompletableFuture<AddStaffResponse> futureAddStaffResponse = new CompletableFuture<>();
-        pendingRequests.put(requestId, futureAddStaffResponse);
+        String requestId = this.storeRequest(futureAddStaffResponse);
 
         //Form the request object for add staff. then send through the gateway.
         AddStaffRequest addStaffRequest = new AddStaffRequest();
@@ -152,9 +154,8 @@ public class StaffService {
 
     public CompletableFuture<DeleteStaffResponse> deleteStaffById(String username, Long deleteId){
         //Similar to other methods.
-        String requestId = UUID.randomUUID().toString();
         CompletableFuture<DeleteStaffResponse> futureDeleteStaffResponse = new CompletableFuture<>();
-        pendingRequests.put(requestId, futureDeleteStaffResponse);
+        String requestId = storeRequest(futureDeleteStaffResponse);
 
         DeleteStaffRequest deleteStaffRequest = new DeleteStaffRequest();
         deleteStaffRequest.setRequestId(requestId);
@@ -173,9 +174,8 @@ public class StaffService {
 
 
     public CompletableFuture<DeleteStaffResponse> deleteStaffByUsername(String username, String deleteUsername){
-        String requestId = UUID.randomUUID().toString();
         CompletableFuture<DeleteStaffResponse> futureDeleteStaffResponse = new CompletableFuture<>();
-        pendingRequests.put(requestId, futureDeleteStaffResponse);
+        String requestId = storeRequest(futureDeleteStaffResponse);
 
         DeleteStaffRequest deleteStaffRequest = new DeleteStaffRequest();
         deleteStaffRequest.setRequestId(requestId);
@@ -193,9 +193,8 @@ public class StaffService {
     }
 
     public CompletableFuture<ChangeStaffResponse> changeStaff(String adminUsername, Long staffId, Staff changeStaffAttributes){
-        String requestId = UUID.randomUUID().toString();
         CompletableFuture<ChangeStaffResponse> futureChangeStaffResponse = new CompletableFuture<>();
-        pendingRequests.put(requestId, futureChangeStaffResponse);
+        String requestId = storeRequest(futureChangeStaffResponse);
 
         ChangeStaffRequest changeStaffRequest = new ChangeStaffRequest();
         changeStaffRequest.setRequestId(requestId);
@@ -211,6 +210,37 @@ public class StaffService {
 
         return futureChangeStaffResponse;
 
+    }
+
+    public Optional<Staff> searchStaff(String adminUsername, String findUsername){
+        return null;
+    }
+
+    public List<Staff> returnAllStaff(@RequestParam String adminUsername){
+        return null;
+    }
+
+
+    public void createEmptyTable(Long restaurantId, int tableOccupancyNum, Boolean available){
+
+    }
+
+    public void createTable(Long restaurantId, int tableOccupancyNum, Boolean available, List<Shift> timeslots){
+
+    }
+
+    public void deleteTable(){
+
+    }
+
+    public void changeTable(){
+
+    }
+
+    private String storeRequest(CompletableFuture<?> request){
+        String requestId = UUID.randomUUID().toString();
+        pendingRequests.put(requestId, request);
+        return requestId;
     }
 
 }

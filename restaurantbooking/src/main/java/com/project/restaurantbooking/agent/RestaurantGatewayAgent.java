@@ -15,6 +15,7 @@ import lombok.extern.java.Log;
 public class RestaurantGatewayAgent extends GatewayAgent {
 
 //    protected void setup(){
+    //super(setup())
 //        System.out.println("Restaurant agent started.");
 //    }
 

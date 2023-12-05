@@ -60,30 +60,8 @@ public class JadeConfiguration {
         }
 
 
-//        try{
-//            AgentController restaurantGatewayAgent = jadeContainer.createNewAgent("gatewayAgent",
-//                    "com.project.restaurantbooking.agent.RestaurantGatewayAgent",
-//                    null);
-//            restaurantGatewayAgent.start();
-//        }catch(StaleProxyException e) {
-//            e.printStackTrace();
-//        }
-
         return jadeContainer;
     }
 
-//    @Bean
-//    public AgentController staffAgentController(ContainerController container){
-//        try {
-//            AgentController staffAgent = container.createNewAgent("staffAgent",
-//                    "com.project.restaurantbooking.agent.StaffAgent",
-//                    null);
-//            staffAgent.start();
-//            return staffAgent;
-//        } catch (StaleProxyException e) {
-//            e.printStackTrace();
-//        }
-//        return null;
-//    }
 
 }

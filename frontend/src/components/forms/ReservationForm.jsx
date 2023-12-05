@@ -31,10 +31,10 @@ const renderField = ({ input, label, type, meta: { touched, error } }) => (
             label="Food name"
           />
           <Field
-            name="shortWait"
-            type="checkbox"
+            name="waitTime"
+            type="text"
             component={renderField}
-            label="Short wait time"
+            label="Wait time in minutes"
           />
           <button type="submit">Submit</button>
         </form>

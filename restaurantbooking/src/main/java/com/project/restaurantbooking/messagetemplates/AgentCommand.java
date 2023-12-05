@@ -12,13 +12,16 @@ public class AgentCommand implements Serializable {
     private String targetAgent;
     private String content;
     private String correlationId;
+    private String task;
     @Getter
     private transient CompletableFuture<Object> futureResult;
 
-    public AgentCommand(String targetAgent, String content, String correlationId) {
+    public AgentCommand(String targetAgent, String content, String correlationId, String task) {
         this.targetAgent = targetAgent;
         this.content = content;
         this.correlationId = correlationId;
+        this.task = task;
+
         this.futureResult = new CompletableFuture<Object>();
     }
 

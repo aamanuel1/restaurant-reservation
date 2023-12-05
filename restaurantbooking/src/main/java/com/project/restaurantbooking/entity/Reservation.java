@@ -29,8 +29,8 @@ public class Reservation {
     private Customer customer;
 
     @ManyToOne
-    @JoinColumn(name = "table_id", nullable = false)
-    private RestaurantTable table;
+    @JoinColumn(name = "restaurant_id", nullable = false)
+    private Restaurant restaurant;
     public Reservation(LocalDateTime startTime, LocalDateTime endTime, Customer customer) {
         this.startTime = startTime;
         this.endTime = endTime;

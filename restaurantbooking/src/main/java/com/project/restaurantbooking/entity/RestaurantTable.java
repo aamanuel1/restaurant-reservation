@@ -23,7 +23,7 @@ public class RestaurantTable implements Serializable {
 
     private int tableOccupancyNum;
 
-    private boolean available;
+    private Boolean available;
 
     @ManyToOne
     @JoinColumn(name = "restaurant_id", nullable = false)

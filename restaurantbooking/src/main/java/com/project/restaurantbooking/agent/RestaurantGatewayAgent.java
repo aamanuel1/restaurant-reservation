@@ -1,20 +1,19 @@
 package com.project.restaurantbooking.agent;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.project.restaurantbooking.messagetemplates.AddStaffRequest;
-import com.project.restaurantbooking.messagetemplates.LoginRequest;
+import com.project.restaurantbooking.messagetemplates.*;
 import jade.core.AID;
+import jade.core.behaviours.CyclicBehaviour;
 import jade.lang.acl.ACLMessage;
-import jade.wrapper.AgentController;
 import jade.wrapper.gateway.GatewayAgent;
-import jade.wrapper.gateway.JadeGateway;
-import lombok.extern.java.Log;
+import lombok.SneakyThrows;
+import org.json.JSONObject;
+
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class RestaurantGatewayAgent extends GatewayAgent {
-
-//    protected void setup(){
-//        System.out.println("Restaurant agent started.");
-//    }
+    private Map<String, AgentCommand> pendingCommands = new ConcurrentHashMap<>();
 
     @Override
     protected void processCommand(Object command){
@@ -54,8 +53,107 @@ public class RestaurantGatewayAgent extends GatewayAgent {
             send(addStaffRequestMessage);
             this.releaseCommand(addStaffRequest);
         }
-        else{
+        if(command instanceof DeleteStaffRequest){
+            DeleteStaffRequest deleteStaffRequest = (DeleteStaffRequest) command;
+            ACLMessage deleteStaffRequestMessage = new ACLMessage(ACLMessage.REQUEST);
+            deleteStaffRequestMessage.addReceiver(new AID("StaffAgent", AID.ISLOCALNAME));
+            String deleteStaffRequestJSON = null;
+            try{
+                deleteStaffRequestJSON = objectMapper.writeValueAsString(deleteStaffRequest);
+                deleteStaffRequestMessage.setConversationId(deleteStaffRequest.getRequestId());
+                deleteStaffRequestMessage.setContent((deleteStaffRequestJSON));
+                deleteStaffRequestMessage.setProtocol(deleteStaffRequest.getOperation());
+            }catch(Exception e){
+                e.printStackTrace();
+            }
+            send(deleteStaffRequestMessage);
+            this.releaseCommand(deleteStaffRequest);
+        }
+        if(command instanceof ChangeStaffRequest){
+            ChangeStaffRequest changeStaffRequest = (ChangeStaffRequest) command;
+            ACLMessage changeStaffRequestMessage = new ACLMessage(ACLMessage.REQUEST);
+            changeStaffRequestMessage.addReceiver(new AID("StaffAgent", AID.ISLOCALNAME));
+            String changeStaffRequestJSON = null;
+            try{
+                changeStaffRequestJSON = objectMapper.writeValueAsString(changeStaffRequest);
+                changeStaffRequestMessage.setConversationId(changeStaffRequest.getRequestId());
+                changeStaffRequestMessage.setContent((changeStaffRequestJSON));
+                changeStaffRequestMessage.setProtocol((changeStaffRequest.getOperation()));
+            }catch(Exception e){
+                e.printStackTrace();
+            }
+            send(changeStaffRequestMessage);
+            this.releaseCommand(changeStaffRequest);
+        }
+
+        if (command instanceof AgentCommand) {
+            System.out.println("\nGatewayAgent - command: " + command);
+            AgentCommand agentCommand = (AgentCommand) command;
+            pendingCommands.put(agentCommand.getCorrelationId(), agentCommand);
+
+            ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
+            msg.addReceiver(new AID(agentCommand.getTargetAgent(), AID.ISLOCALNAME));
+            String agentCommandJSON;
+
+            try {
+                agentCommandJSON = agentCommand.getContent(); //objectMapper.writeValueAsString(agentCommand);
+                msg.setConversationId("reserve");
+                msg.setProtocol("reserve");
+                msg.setContent(agentCommandJSON);
+                send(msg);
+                System.out.println("\nGateway: Msg Sent to RestAgent\n");
+            } catch (Exception e) {
+                System.out.println("Error: " + e.getClass().getSimpleName() + " - " + e.getMessage());
+                agentCommand.completeFutureResult("Error: " + e.getMessage());
+                pendingCommands.remove(agentCommand.getCorrelationId());
+                this.releaseCommand(command);
+            } finally {
+                System.out.println("\nGatewayAgent: Command Released\n");
+            }
+            System.out.println("\n=== GatewayAgent: Response sent back to controller ===\n");
+        }
+        else {
             System.out.println("Not working.");
         }
     }
+
+
+    @Override
+    protected void setup() {
+        super.setup();
+        System.out.println("\nGatewayAgent - setup - Agent " + getAID().getName() + " is ready.\n");
+        addBehaviour(new CyclicBehaviour() {
+            @SneakyThrows
+            @Override
+            public void action() {
+                System.out.println("\n=== GatewayAgent: Receiving Msg ====\n");
+                ACLMessage msg = receive();
+                if (msg != null) {
+                    System.out.println("\n=== GatewayAgent: Msg Rcd ====\n"+msg);
+                    // Process incoming messages
+                    String content = msg.getContent();
+                    System.out.println("BackGW: "+ content);
+                    JSONObject json = new JSONObject(content);
+                    String correlationId = json.getString("correlationId");
+
+                    AgentCommand command = pendingCommands.get(correlationId);
+
+                    if (command != null) {
+                        command.completeFutureResult(content);
+                        pendingCommands.remove(correlationId);
+                        RestaurantGatewayAgent.this.releaseCommand(command);
+                    } else {
+                        System.out.println("No matching command found for correlationId: " + correlationId);
+                    }
+
+                } else {
+                    System.out.println("\nMessage is null: "+ msg +"\n");
+                    block();
+                }
+            }
+        });
+    }
+
+
+
 }

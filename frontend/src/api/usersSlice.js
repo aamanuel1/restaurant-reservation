@@ -30,7 +30,12 @@ export const usersApi = createApi({
         getAllRestaurants: builder.query({
             query: () => "restaurant/list",
         }),
-
+        addReservationByFoodNameAndWaitTime: builder.mutation({
+            query: ({foodName, waitTime}) => ({
+                url: `reservation/${foodName}/${waitTime}`,
+                method: 'POST'
+            }),
+        }),
         getPostByIdAndUserId: builder.query({
             query: ({postId, userId}) => `user-posts/${postId}/${userId}`,
         }),
@@ -76,6 +81,7 @@ export const {
     useAddNewCustomerMutation,
     useGetAllFoodsQuery,
     useGetAllRestaurantsQuery,
+    useAddReservationByFoodNameAndWaitTimeMutation,
 
     useGetUserPostsQuery,
     useGetPostByIdQuery,

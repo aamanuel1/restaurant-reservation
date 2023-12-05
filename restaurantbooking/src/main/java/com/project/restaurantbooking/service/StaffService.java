@@ -1,11 +1,10 @@
 package com.project.restaurantbooking.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.project.restaurantbooking.entity.Shift;
 import com.project.restaurantbooking.entity.Staff;
-import com.project.restaurantbooking.messagetemplates.AddStaffRequest;
-import com.project.restaurantbooking.messagetemplates.AddStaffResponse;
-import com.project.restaurantbooking.messagetemplates.LoginRequest;
-import com.project.restaurantbooking.messagetemplates.LoginResponse;
+import com.project.restaurantbooking.messagetemplates.*;
+import com.project.restaurantbooking.repo.StaffRepository;
 import jade.core.AID;
 import jade.lang.acl.ACLMessage;
 import jade.wrapper.gateway.JadeGateway;
@@ -16,8 +15,10 @@ import org.springframework.integration.channel.DirectChannel;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageHeaders;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -30,8 +31,6 @@ public class StaffService {
 
     private final ConcurrentHashMap<String, CompletableFuture<?>> pendingRequests = new ConcurrentHashMap<>();
 
-//    private final ContainerController jadeContainer;
-
     @Autowired
     @Qualifier("StaffAgentRequestChannel")
     private DirectChannel staffAgentRequestChannel;
@@ -40,23 +39,12 @@ public class StaffService {
     @Qualifier("StaffAgentResponseChannel")
     private DirectChannel staffAgentResponseChannel;
 
-//    @Autowired
-//    public StaffService(ContainerController jadeContainer){
-//        this.jadeContainer = jadeContainer;
-//    }
-
     @ServiceActivator(inputChannel = "staffAgentRequestChannel")
     public void sendRequestToStaffAgent(String message){
         //Convert to ACLMessage and send to JADE Gateway
         ACLMessage agentMessage = new ACLMessage(ACLMessage.REQUEST);
         agentMessage.addReceiver(new AID("GatewayAgent", AID.ISLOCALNAME));
         agentMessage.setContent(message);
-//        try{
-//            AgentController gatewayAgent = jadeContainer.getAgent("GatewayAgent");
-//            gatewayAgent.putO2AObject(agentMessage, false);
-//        } catch(Exception e){
-//            e.printStackTrace();
-//        }
     }
 
     @ServiceActivator(inputChannel = "StaffAgentReplyChannel")
@@ -75,7 +63,6 @@ public class StaffService {
     }
 
     private Object extractObjectFromResponse(String message){
-//        String unknownJson = message.getContent();
         ObjectMapper objectMapper = new ObjectMapper();
 
         //Try and catch to guess the response type in messagetemplates until we get the right one.
@@ -85,6 +72,12 @@ public class StaffService {
         } catch(IOException ignore){}
         try{
             return objectMapper.readValue(message, AddStaffResponse.class);
+        } catch(IOException ignore){};
+        try{
+            return objectMapper.readValue(message, DeleteStaffResponse.class);
+        } catch(IOException ignore){};
+        try{
+            return objectMapper.readValue(message, ChangeStaffResponse.class);
         } catch(IOException ignore){};
 
         //default to null.
@@ -103,13 +96,22 @@ public class StaffService {
             AddStaffResponse addStaffResponse = (AddStaffResponse) response;
             ((CompletableFuture<AddStaffResponse>) futurePromise).complete((AddStaffResponse) addStaffResponse);
         }
+
+        if(response instanceof DeleteStaffResponse){
+            DeleteStaffResponse deleteStaffResponse = (DeleteStaffResponse) response;
+            ((CompletableFuture<DeleteStaffResponse>) futurePromise).complete((DeleteStaffResponse) deleteStaffResponse);
+        }
+
+        if(response instanceof ChangeStaffResponse){
+            ChangeStaffResponse changeStaffResponse = (ChangeStaffResponse) response;
+            ((CompletableFuture<ChangeStaffResponse>) futurePromise).complete((ChangeStaffResponse) changeStaffResponse);
+        }
     }
 
     public CompletableFuture<Optional<Staff>> login(String username, String password){
         //Store the future request in the pending requests hashmap.
-        String requestId = UUID.randomUUID().toString();
         CompletableFuture<Optional<Staff>> futureLoginResponse = new CompletableFuture<>();
-        pendingRequests.put(requestId, futureLoginResponse);
+        String requestId = this.storeRequest(futureLoginResponse);
 
         //Form the LoginRequest object for sending through the gateway.
         LoginRequest loginRequest = new LoginRequest();
@@ -118,6 +120,7 @@ public class StaffService {
         loginRequest.setUsername(username);
         loginRequest.setPassword(password);
 
+        //Send through the JadeGateway API
         try{
             JadeGateway.execute(loginRequest);
         } catch (Exception e) {
@@ -130,10 +133,10 @@ public class StaffService {
 
     public CompletableFuture<AddStaffResponse> addStaff(String username, Staff newStaff){
         //Store the future request in the pending requests hashmap.
-        String requestId = UUID.randomUUID().toString();
         CompletableFuture<AddStaffResponse> futureAddStaffResponse = new CompletableFuture<>();
-        pendingRequests.put(requestId, futureAddStaffResponse);
+        String requestId = this.storeRequest(futureAddStaffResponse);
 
+        //Form the request object for add staff. then send through the gateway.
         AddStaffRequest addStaffRequest = new AddStaffRequest();
         addStaffRequest.setRequestId(requestId);
         addStaffRequest.setOperation("add-staff");
@@ -144,8 +147,100 @@ public class StaffService {
         }catch(Exception e){
             e.printStackTrace();
         }
+        //Return the future.
         return futureAddStaffResponse;
 
+    }
+
+    public CompletableFuture<DeleteStaffResponse> deleteStaffById(String username, Long deleteId){
+        //Similar to other methods.
+        CompletableFuture<DeleteStaffResponse> futureDeleteStaffResponse = new CompletableFuture<>();
+        String requestId = storeRequest(futureDeleteStaffResponse);
+
+        DeleteStaffRequest deleteStaffRequest = new DeleteStaffRequest();
+        deleteStaffRequest.setRequestId(requestId);
+        deleteStaffRequest.setOperation("delete-staff");
+        deleteStaffRequest.setUsername(username);
+        deleteStaffRequest.setDeleteByStaffId(deleteId);
+        deleteStaffRequest.setDeleteByStaffUsername("");
+        try{
+            JadeGateway.execute(deleteStaffRequest);
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+
+        return futureDeleteStaffResponse;
+    }
+
+
+    public CompletableFuture<DeleteStaffResponse> deleteStaffByUsername(String username, String deleteUsername){
+        CompletableFuture<DeleteStaffResponse> futureDeleteStaffResponse = new CompletableFuture<>();
+        String requestId = storeRequest(futureDeleteStaffResponse);
+
+        DeleteStaffRequest deleteStaffRequest = new DeleteStaffRequest();
+        deleteStaffRequest.setRequestId(requestId);
+        deleteStaffRequest.setOperation("delete-staff");
+        deleteStaffRequest.setUsername(username);
+        deleteStaffRequest.setDeleteByStaffId(Long.valueOf(-1));
+        deleteStaffRequest.setDeleteByStaffUsername(deleteUsername);
+        try{
+            JadeGateway.execute(deleteStaffRequest);
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+
+        return futureDeleteStaffResponse;
+    }
+
+    public CompletableFuture<ChangeStaffResponse> changeStaff(String adminUsername, Long staffId, Staff changeStaffAttributes){
+        CompletableFuture<ChangeStaffResponse> futureChangeStaffResponse = new CompletableFuture<>();
+        String requestId = storeRequest(futureChangeStaffResponse);
+
+        ChangeStaffRequest changeStaffRequest = new ChangeStaffRequest();
+        changeStaffRequest.setRequestId(requestId);
+        changeStaffRequest.setOperation("change-staff");
+        changeStaffRequest.setUsername(adminUsername);
+        changeStaffRequest.setChangeStaffId(staffId);
+        changeStaffRequest.setChangeStaff(changeStaffAttributes);
+        try{
+            JadeGateway.execute(changeStaffRequest);
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+
+        return futureChangeStaffResponse;
+
+    }
+
+    public Optional<Staff> searchStaff(String adminUsername, String findUsername){
+        return null;
+    }
+
+    public List<Staff> returnAllStaff(@RequestParam String adminUsername){
+        return null;
+    }
+
+
+    public void createEmptyTable(Long restaurantId, int tableOccupancyNum, Boolean available){
+
+    }
+
+    public void createTable(Long restaurantId, int tableOccupancyNum, Boolean available, List<Shift> timeslots){
+
+    }
+
+    public void deleteTable(){
+
+    }
+
+    public void changeTable(){
+
+    }
+
+    private String storeRequest(CompletableFuture<?> request){
+        String requestId = UUID.randomUUID().toString();
+        pendingRequests.put(requestId, request);
+        return requestId;
     }
 
 }

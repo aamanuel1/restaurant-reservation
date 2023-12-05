@@ -30,13 +30,13 @@ public class Staff implements Serializable {
 
     private String username;
 
-    private boolean isAdmin;
+    private Boolean isAdmin;
 
     private String password;
 
-//    @ManyToOne
-//    @JoinColumn(name = "restaurant_id", nullable = false)
-//    private Restaurant restaurant;
+    @ManyToOne
+    @JoinColumn(name = "restaurant_id")
+    private Restaurant restaurant;
 
     public Staff(String firstName, String lastName, String username, boolean isAdmin, String password) {
         this.firstName = firstName;
@@ -45,4 +45,14 @@ public class Staff implements Serializable {
         this.isAdmin = isAdmin;
         this.password = password;
     }
+
+    public Staff(String firstName, String lastName, String username, boolean isAdmin, String password, Restaurant restaurant) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.username = username;
+        this.isAdmin = isAdmin;
+        this.password = password;
+        this.restaurant = restaurant;
+    }
+
 }

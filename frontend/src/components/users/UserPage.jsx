@@ -1,6 +1,6 @@
 import React from "react";
 import { Link, useParams } from "react-router-dom";
-import { useGetCustomerByEmailQuery } from "../../api/usersSlice";
+import { useGetCustomerByEmailQuery, useAddReservationByFoodNameAndWaitTimeMutation } from "../../api/usersSlice";
 import ReservationForm from "../forms/ReservationForm";
 
 

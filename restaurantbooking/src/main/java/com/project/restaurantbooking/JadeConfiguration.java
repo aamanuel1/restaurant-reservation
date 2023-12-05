@@ -53,38 +53,16 @@ public class JadeConfiguration {
             restaurantAgent.start();
 
             // Initialize the GatewayAgent
-            JadeGateway.init("com.project.restaurantbooking.MyGatewayAgent", jadeProfile.getBootProperties());
+//            JadeGateway.init("com.project.restaurantbooking.agent.TheGatewayAgent", jadeProfile.getBootProperties());
+
 
         } catch (StaleProxyException e) {
             e.printStackTrace();
         }
-
         //Start Gateway Agent
         JadeGateway.init("com.project.restaurantbooking.agent.RestaurantGatewayAgent", jadeProfile.getBootProperties());
-//        try{
-//            AgentController restaurantGatewayAgent = jadeContainer.createNewAgent("gatewayAgent",
-//                    "com.project.restaurantbooking.agent.RestaurantGatewayAgent",
-//                    null);
-//            restaurantGatewayAgent.start();
-//        }catch(StaleProxyException e) {
-//            e.printStackTrace();
-//        }
-
         return jadeContainer;
     }
 
-//    @Bean
-//    public AgentController staffAgentController(ContainerController container){
-//        try {
-//            AgentController staffAgent = container.createNewAgent("staffAgent",
-//                    "com.project.restaurantbooking.agent.StaffAgent",
-//                    null);
-//            staffAgent.start();
-//            return staffAgent;
-//        } catch (StaleProxyException e) {
-//            e.printStackTrace();
-//        }
-//        return null;
-//    }
 
 }

@@ -3,8 +3,9 @@ package com.project.restaurantbooking.agent;
 
 import com.project.restaurantbooking.SpringContextProvider;
 import com.project.restaurantbooking.behaviours.AddStaffBehaviour;
+import com.project.restaurantbooking.behaviours.ChangeStaffBehaviour;
+import com.project.restaurantbooking.behaviours.DeleteStaffBehaviour;
 import com.project.restaurantbooking.behaviours.LoginBehaviour;
-import com.project.restaurantbooking.entity.Staff;
 import com.project.restaurantbooking.repo.StaffRepository;
 import jade.core.Agent;
 import jade.domain.DFService;
@@ -13,8 +14,6 @@ import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.domain.FIPAException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
-
-import java.util.Optional;
 
 @Service
 public class StaffAgent extends Agent {
@@ -41,7 +40,8 @@ public class StaffAgent extends Agent {
         setEnabledO2ACommunication(true, 0);
         addBehaviour(new LoginBehaviour(this, staffRepository));
         addBehaviour(new AddStaffBehaviour(this));
-
+        addBehaviour(new DeleteStaffBehaviour(this));
+        addBehaviour(new ChangeStaffBehaviour(this));
     }
 
     protected void takeDown(){
@@ -53,11 +53,4 @@ public class StaffAgent extends Agent {
         }
     }
 
-    public StaffAgent authenticate(String username, String password){
-        Optional<Staff> authStaff = staffRepository.findByUsername(username);
-        if(authStaff.get().getPassword().equals(password))
-            return this;
-        else
-            return null;
-    }
 }

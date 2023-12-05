@@ -1,6 +1,6 @@
 //package com.project.restaurantbooking.service;
 //
-//import com.project.restaurantbooking.MyGatewayAgent;
+//import com.project.restaurantbooking.agent.TheGatewayAgent;
 //import jade.core.Profile;
 //import jade.core.ProfileImpl;
 //import jade.core.Runtime;
@@ -58,7 +58,7 @@
 //
 ////            System.out.println("\nJadeService initJade - AppContext: "+ applicationContext+"\n");
 ////            MyGatewayAgent.setApplicationContext(applicationContext);
-//            JadeGateway.init("com.project.restaurantbooking.MyGatewayAgent", jadeProfile.getBootProperties());
+//            JadeGateway.init("com.project.restaurantbooking.agent.TheGatewayAgent", jadeProfile.getBootProperties());
 //
 //        } catch (StaleProxyException e) {
 //            e.printStackTrace();

@@ -114,10 +114,9 @@ public class DataBaseLoader implements CommandLineRunner {
         frenchRestaurant = restaurantRepository.save(frenchRestaurant);
         WaitTime waitTime1 = waitTimeRepository.save(WaitTime.builder()
                 .restaurant(frenchRestaurant)
-                .minutes(30L)
+                .minutes(110L)
                 .build()
         );
-
         for (int i=0; i < 10; i++) {
             tableRepository.save(
                     RestaurantTable.builder()
@@ -136,11 +135,10 @@ public class DataBaseLoader implements CommandLineRunner {
         );
         indianRestaurant = restaurantRepository.save(indianRestaurant);
         WaitTime waitTime2 = waitTimeRepository.save(WaitTime.builder()
-                .restaurant(frenchRestaurant)
-                .minutes(100L)
+                .restaurant(indianRestaurant)
+                .minutes(50L)
                 .build()
         );
-
         for (int i=0; i < 10; i++) {
             tableRepository.save(
                     RestaurantTable.builder()

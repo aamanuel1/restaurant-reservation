@@ -1,16 +1,18 @@
 package com.project.restaurantbooking.agent;
 
-import com.project.restaurantbooking.ApplicationContextProvider;
 import com.project.restaurantbooking.SpringContextProvider;
-import com.project.restaurantbooking.behaviours.LeaveFeedbackBehaviour;
-import com.project.restaurantbooking.entity.Restaurant;
 import com.project.restaurantbooking.repo.CustomerRepository;
 import com.project.restaurantbooking.repo.RestaurantRepository;
 import jade.core.Agent;
+import jade.core.behaviours.CyclicBehaviour;
 import jade.domain.DFService;
 import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.domain.FIPAException;
+import jade.lang.acl.ACLMessage;
+import jade.lang.acl.MessageTemplate;
+import lombok.SneakyThrows;
+import org.json.JSONObject;
 import org.springframework.context.ApplicationContext;
 
 public class CustomerAgent extends Agent {
@@ -52,6 +54,51 @@ public class CustomerAgent extends Agent {
             DFService.deregister(this);
         } catch (FIPAException fe) {
             fe.printStackTrace();
+        }
+    }
+
+    public class LeaveFeedbackBehaviour extends CyclicBehaviour {
+        @SneakyThrows
+        @Override
+        public void action() {
+            System.out.println("\n=== Customer Agent listing for feedback:===\n");
+            // Message template to listen for reservation requests
+            MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.INFORM);
+            ACLMessage msg = myAgent.receive(mt);
+
+            if (msg != null) {
+                System.out.println("\n=== Customer -- Msg Rcd. ===\n"+ msg);
+                System.out.println("\nCustomerAgent: Msg Sender"+ msg.getSender() +"\n");
+                // Process the incoming message
+                // Extract details etc.
+                String content = msg.getContent();
+                JSONObject json = new JSONObject(content);
+                String correlationId = json.getString("correlationId");
+                String task = json.getString("task");
+                String rating = json.getString("rating");
+                String feedback = json.getString("feedback");
+                String restaurantId = json.getString("restaurantId");
+
+                String responseToGateway = null;
+
+                responseToGateway = leaveFeedback(restaurantId, rating, feedback, correlationId, task);
+
+                System.out.println("\nSuccessfully left feedback\n");
+            } else {
+                System.out.println("\n=== CustomerAgent -- No Msg. ===\n"+ msg);
+                block();
+            }
+        }
+
+        public String leaveFeedback(String restaurantId, String rating, String feedback, String correlationId, String task){
+            // TODO: WRITE TO DB
+            String responseToGateway = String.format("""
+                    {
+                        "correlationId": "%s",
+                        "task": "%s",
+                    }
+                    """, correlationId, task);
+            return responseToGateway;
         }
     }
 }

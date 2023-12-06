@@ -1,7 +1,10 @@
 package com.project.restaurantbooking.agent;
 
 import com.project.restaurantbooking.SpringContextProvider;
+import com.project.restaurantbooking.entity.Rating;
+import com.project.restaurantbooking.entity.Restaurant;
 import com.project.restaurantbooking.repo.CustomerRepository;
+import com.project.restaurantbooking.repo.RatingRepository;
 import com.project.restaurantbooking.repo.RestaurantRepository;
 import jade.core.Agent;
 import jade.core.behaviours.CyclicBehaviour;
@@ -17,6 +20,7 @@ import org.springframework.context.ApplicationContext;
 
 public class CustomerAgent extends Agent {
     CustomerRepository customerRepository;
+    RatingRepository ratingRepository;
     RestaurantRepository restaurantRepository;
     @Override
     protected void setup() {
@@ -24,6 +28,7 @@ public class CustomerAgent extends Agent {
 
         ApplicationContext context = SpringContextProvider.getApplicationContext();
         customerRepository = context.getBean(CustomerRepository.class);
+        ratingRepository = context.getBean(RatingRepository.class);
         restaurantRepository = context.getBean(RestaurantRepository.class);
 
         System.out.println("\n========= CustomerAgent - setup - Context:"+ context+ "\n");
@@ -75,9 +80,9 @@ public class CustomerAgent extends Agent {
                 JSONObject json = new JSONObject(content);
                 String correlationId = json.getString("correlationId");
                 String task = json.getString("task");
-                String rating = json.getString("rating");
+                Long rating = json.getLong("rating");
                 String feedback = json.getString("feedback");
-                String restaurantId = json.getString("restaurantId");
+                Long restaurantId = json.getLong("restaurantId");
 
                 String responseToGateway = null;
 
@@ -90,8 +95,11 @@ public class CustomerAgent extends Agent {
             }
         }
 
-        public String leaveFeedback(String restaurantId, String rating, String feedback, String correlationId, String task){
-            // TODO: WRITE TO DB
+        public String leaveFeedback(Long restaurantId, Long rating, String feedback, String correlationId, String task){
+            Restaurant restaurant = restaurantRepository.findById(restaurantId)
+                    .orElseThrow(() -> new RuntimeException("Restaurant not found"));
+            Rating r = new Rating(rating, feedback, restaurant);
+            ratingRepository.save(r);
             String responseToGateway = String.format("""
                     {
                         "correlationId": "%s",

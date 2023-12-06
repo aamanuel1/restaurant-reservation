@@ -20,11 +20,12 @@ public class DataBaseLoader implements CommandLineRunner {
     private final FoodRepository foodRepository;
     private final FavouriteFoodRepository favouriteFoodRepository;
     private final WaitTimeRepository waitTimeRepository;
+    private final RatingRepository ratingRepository;
 
     public DataBaseLoader(CustomerRepository customerRepository, ReservationRepository reservationRepository,
                           RestaurantRepository restaurantRepository, ShiftRepository shiftRepository,
                           StaffRepository staffRepository, TableRepository tableRepository,
-                          FoodRepository foodRepository, FavouriteFoodRepository favouriteFoodRepository, WaitTimeRepository waitTimeRepository) {
+                          FoodRepository foodRepository, FavouriteFoodRepository favouriteFoodRepository, WaitTimeRepository waitTimeRepository, RatingRepository ratingRepository) {
         this.customerRepository = customerRepository;
         this.reservationRepository = reservationRepository;
         this.restaurantRepository = restaurantRepository;
@@ -34,6 +35,7 @@ public class DataBaseLoader implements CommandLineRunner {
         this.foodRepository = foodRepository;
         this.favouriteFoodRepository = favouriteFoodRepository;
         this.waitTimeRepository = waitTimeRepository;
+        this.ratingRepository = ratingRepository;
     }
 
     /**

@@ -78,8 +78,15 @@ public class StaffController extends Agent{
     }
 
     @GetMapping("api/v1/returnallstaff")
-    public List<Staff> returnAllStaff(@RequestParam String adminUsername){
-        return this.staffService.returnAllStaff(adminUsername);
+    public ResponseEntity<CompletableFuture<Object>> returnAllStaff(@RequestParam String adminUsername, @RequestParam Long restaurantId){
+        try{
+            CompletableFuture<Object> returnAllStaffResult = this.staffService.returnAllStaff(adminUsername, restaurantId);
+            return ResponseEntity.ok(returnAllStaffResult);
+        }catch(Exception e){
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(CompletableFuture.completedFuture("Error returning restaurant staff."));
+        }
     }
 
     @PostMapping("api/v1/changestaff")

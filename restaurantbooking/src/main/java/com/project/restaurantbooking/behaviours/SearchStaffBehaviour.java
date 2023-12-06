@@ -13,6 +13,7 @@ import org.json.JSONObject;
 import org.springframework.context.ApplicationContext;
 import org.springframework.messaging.Message;
 
+import java.util.List;
 import java.util.Optional;
 
 public class SearchStaffBehaviour extends CyclicBehaviour {
@@ -53,12 +54,29 @@ public class SearchStaffBehaviour extends CyclicBehaviour {
                     }
                     """, correlationId, task, staffJson);
             }
+            else if(task.equals("return-all-staff")){
+                String username = json.getJSONObject("data").getString("username");
+                Long restaurantId = json.getJSONObject("data").getLong("restaurantId");
+                List<Staff> allStaff = this.findAllStaff();
+                String staffListJson = null;
+                if(!allStaff.isEmpty()){
+                    staffListJson = jsonMapper.writeValueAsString(allStaff);
+                }
+
+                searchStaffResultsToGateway = String.format("""
+                    {
+                        "correlationId": "%s",
+                        "task": "%s",
+                        "staff": %s,
+                    }
+                    """, correlationId, task, staffListJson);
+            }
 
             ACLMessage searchStaffReply = msg.createReply();
             searchStaffReply.setPerformative(ACLMessage.INFORM);
             searchStaffReply.setContent(searchStaffResultsToGateway);
             searchStaffReply.setConversationId(correlationId);
-            searchStaffReply.setProtocol("change-staff-response");
+            searchStaffReply.setProtocol("search-staff-response");
             myAgent.send(searchStaffReply);
 
         }
@@ -72,6 +90,13 @@ public class SearchStaffBehaviour extends CyclicBehaviour {
         StaffRepository staffRepository = context.getBean(StaffRepository.class);
         return staffRepository.findByUsername(username);
     }
+
+    public List<Staff> findAllStaff(){
+        ApplicationContext context = SpringContextProvider.getApplicationContext();
+        StaffRepository staffRepository = context.getBean(StaffRepository.class);
+        return staffRepository.findAll();
+    }
+
 
     public boolean isStaffAuthorized(String username){
         ApplicationContext context = SpringContextProvider.getApplicationContext();

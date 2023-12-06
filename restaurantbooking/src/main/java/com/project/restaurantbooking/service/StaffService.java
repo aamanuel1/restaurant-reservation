@@ -243,8 +243,31 @@ public class StaffService {
         return result;
     }
 
-    public List<Staff> returnAllStaff(@RequestParam String adminUsername){
-        return null;
+    public CompletableFuture<Object> returnAllStaff(String adminUsername, Long restaurantId){
+        String correlationId = UUID.randomUUID().toString();
+        AgentResponseHolder responseHolder = new AgentResponseHolder();
+        responseMap.put(correlationId, responseHolder);
+
+        String returnStaffMsgJson = String.format("""
+        {
+            "correlationId": "%s",
+            "targetAgent": "staffAgent",
+            "task": "return-all-staff",
+            "data": {
+                "username": "%s",
+                "restaurantId": "%d",
+            }
+        }
+        """, correlationId, adminUsername, restaurantId);
+        AgentCommand returnStaffCommand = new AgentCommand("staffAgent", returnStaffMsgJson, correlationId, "return-all-staff");
+        try{
+            JadeGateway.execute(returnStaffCommand);
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+
+        CompletableFuture<Object> result = returnStaffCommand.getFutureResult();
+        return result;
     }
 
 

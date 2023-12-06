@@ -8,6 +8,8 @@ import com.project.restaurantbooking.messagetemplates.DeleteStaffResponse;
 import com.project.restaurantbooking.service.StaffService;
 import jade.core.Agent;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -64,8 +66,15 @@ public class StaffController extends Agent{
     }
 
     @GetMapping("api/v1/searchstaff")
-    public Optional<Staff> searchStaff(@RequestParam String adminUsername, @RequestParam String findUsername){
-        return this.staffService.searchStaff(adminUsername, findUsername);
+    public ResponseEntity<CompletableFuture<Object>> searchStaff(@RequestParam String adminUsername, @RequestParam String findUsername){
+        try{
+            CompletableFuture<Object> searchStaffResult = this.staffService.searchStaff(adminUsername, findUsername);
+            return ResponseEntity.ok(searchStaffResult);
+        }catch(Exception e){
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(CompletableFuture.completedFuture("Error sending search staff request."));
+        }
     }
 
     @GetMapping("api/v1/returnallstaff")

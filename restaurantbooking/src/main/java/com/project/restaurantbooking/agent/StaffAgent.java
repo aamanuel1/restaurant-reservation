@@ -2,10 +2,7 @@ package com.project.restaurantbooking.agent;
 
 
 import com.project.restaurantbooking.SpringContextProvider;
-import com.project.restaurantbooking.behaviours.AddStaffBehaviour;
-import com.project.restaurantbooking.behaviours.ChangeStaffBehaviour;
-import com.project.restaurantbooking.behaviours.DeleteStaffBehaviour;
-import com.project.restaurantbooking.behaviours.LoginBehaviour;
+import com.project.restaurantbooking.behaviours.*;
 import com.project.restaurantbooking.repo.StaffRepository;
 import jade.core.Agent;
 import jade.domain.DFService;
@@ -42,6 +39,7 @@ public class StaffAgent extends Agent {
         addBehaviour(new AddStaffBehaviour(this));
         addBehaviour(new DeleteStaffBehaviour(this));
         addBehaviour(new ChangeStaffBehaviour(this));
+        addBehaviour(new SearchStaffBehaviour(this));
     }
 
     protected void takeDown(){

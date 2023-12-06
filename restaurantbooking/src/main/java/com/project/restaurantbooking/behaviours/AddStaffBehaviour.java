@@ -48,6 +48,9 @@ public class AddStaffBehaviour extends CyclicBehaviour {
                 e.printStackTrace();
                 block();
             }
+            if(!addStaffMsg.getProtocol().equals("add-staff")){
+                myAgent.putBack(addStaffMsg);
+            }
 
             boolean isStaffAuthorized = this.isStaffAuthorized(addStaffRequest.getUsername());
             boolean isAddSuccessful = false;

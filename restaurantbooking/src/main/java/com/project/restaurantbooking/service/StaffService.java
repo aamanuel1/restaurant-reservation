@@ -1,6 +1,7 @@
 package com.project.restaurantbooking.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.project.restaurantbooking.controller.AgentResponseHolder;
 import com.project.restaurantbooking.entity.Shift;
 import com.project.restaurantbooking.entity.Staff;
 import com.project.restaurantbooking.messagetemplates.*;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -30,6 +32,8 @@ public class StaffService {
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     private final ConcurrentHashMap<String, CompletableFuture<?>> pendingRequests = new ConcurrentHashMap<>();
+
+    private final Map<String, AgentResponseHolder> responseMap = new ConcurrentHashMap<>();
 
     @Autowired
     @Qualifier("StaffAgentRequestChannel")
@@ -212,8 +216,31 @@ public class StaffService {
 
     }
 
-    public Optional<Staff> searchStaff(String adminUsername, String findUsername){
-        return null;
+    public CompletableFuture<Object> searchStaff(String adminUsername, String findUsername){
+        String correlationId = UUID.randomUUID().toString();
+        AgentResponseHolder responseHolder = new AgentResponseHolder();
+        responseMap.put(correlationId, responseHolder);
+
+        String searchStaffMsgJson = String.format("""
+        {
+            "correlationId": "%s",
+            "targetAgent": "staffAgent",
+            "task": "search-staff",
+            "data": {
+                "username": "%s",
+                "searchUsername": "%s",
+            }
+        }
+        """, correlationId, adminUsername, findUsername);
+        AgentCommand searchStaffCommand = new AgentCommand("staffAgent", searchStaffMsgJson, correlationId, "search-staff");
+        try{
+            JadeGateway.execute(searchStaffCommand);
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+
+        CompletableFuture<Object> result = searchStaffCommand.getFutureResult();
+        return result;
     }
 
     public List<Staff> returnAllStaff(@RequestParam String adminUsername){

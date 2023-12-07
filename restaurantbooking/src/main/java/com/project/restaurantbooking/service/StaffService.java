@@ -2,10 +2,10 @@ package com.project.restaurantbooking.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.project.restaurantbooking.controller.AgentResponseHolder;
+import com.project.restaurantbooking.entity.RestaurantTable;
 import com.project.restaurantbooking.entity.Shift;
 import com.project.restaurantbooking.entity.Staff;
 import com.project.restaurantbooking.messagetemplates.*;
-import com.project.restaurantbooking.repo.StaffRepository;
 import jade.core.AID;
 import jade.lang.acl.ACLMessage;
 import jade.wrapper.gateway.JadeGateway;
@@ -16,7 +16,6 @@ import org.springframework.integration.channel.DirectChannel;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageHeaders;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import java.io.IOException;
 import java.util.List;
@@ -303,6 +302,43 @@ public class StaffService {
         }
 
         CompletableFuture<Object> result = returnTablesCommand.getFutureResult();
+        return result;
+    }
+
+    public CompletableFuture<Object> changeTableAttributes(String adminUsername, Long tableId, RestaurantTable tableAttributeChanges){
+        String correlationId = UUID.randomUUID().toString();
+        AgentResponseHolder responseHolder = new AgentResponseHolder();
+        responseMap.put(correlationId, responseHolder);
+
+        String tableAttributeChangesJson = null;
+        ObjectMapper jsonMapper = new ObjectMapper();
+        try{
+            tableAttributeChangesJson = jsonMapper.writeValueAsString(tableAttributeChanges);
+        } catch(Exception e){
+            e.printStackTrace();
+        }
+
+        String ChangeTablesMsgJson = String.format("""
+        {
+            "correlationId": "%s",
+            "targetAgent": "staffAgent",
+            "task": "change-table-attributes",
+            "data": {
+                "adminUsername": "%s",
+                "tableId": %d,
+                "tableAttributeChanges": %s,
+            }
+        }
+        """, correlationId, adminUsername, tableId, tableAttributeChangesJson);
+        System.out.println(ChangeTablesMsgJson);
+        AgentCommand changeTablesCommand = new AgentCommand("staffAgent", ChangeTablesMsgJson, correlationId, "change-table-attributes");
+        try{
+            JadeGateway.execute(changeTablesCommand);
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+
+        CompletableFuture<Object> result = changeTablesCommand.getFutureResult();
         return result;
     }
 

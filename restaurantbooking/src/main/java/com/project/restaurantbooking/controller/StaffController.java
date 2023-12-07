@@ -1,5 +1,6 @@
 package com.project.restaurantbooking.controller;
 
+import com.project.restaurantbooking.entity.RestaurantTable;
 import com.project.restaurantbooking.entity.Shift;
 import com.project.restaurantbooking.entity.Staff;
 import com.project.restaurantbooking.messagetemplates.AddStaffResponse;
@@ -103,6 +104,8 @@ public class StaffController extends Agent{
                             @RequestParam int tableOccupancyNum,
                             @RequestParam Boolean available,
                             @RequestParam(required = false) ArrayList<Shift> timeslots){
+
+
         if(timeslots == null){
             //use empty timeslots
             staffService.createEmptyTable(restaurantId, tableOccupancyNum, available);
@@ -121,6 +124,20 @@ public class StaffController extends Agent{
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(CompletableFuture.completedFuture("Error returning restaurant staff."));
+        }
+    }
+
+    @PostMapping("api/v1/changetable")
+    public ResponseEntity<CompletableFuture<Object>> changeTable(@RequestParam String adminUsername,
+                                                                 @RequestParam Long tableId,
+                                                                 @RequestBody RestaurantTable changeTableAttributes){
+        try{
+            CompletableFuture<Object> deleteTableResponse = this.staffService.changeTableAttributes(adminUsername, tableId, changeTableAttributes);
+            return ResponseEntity.ok(deleteTableResponse);
+        }catch(Exception e){
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(CompletableFuture.completedFuture("Error changing table."));
         }
     }
 

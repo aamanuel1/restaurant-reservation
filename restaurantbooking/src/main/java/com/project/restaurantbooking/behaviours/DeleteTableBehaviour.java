@@ -52,7 +52,7 @@ public class DeleteTableBehaviour extends CyclicBehaviour {
                     message = "Delete table successful.";
                 }
                 else if(isStaffAuthorized && !isDeleteTableSuccessful){
-                    message = "Delete table unsuccesful";
+                    message = "Delete table unsuccessful";
                 }
                 else{
                     message = "User not authorized";

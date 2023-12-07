@@ -279,8 +279,58 @@ public class StaffService {
 
     }
 
-    public void deleteTable(){
+    public CompletableFuture<Object> searchTables(Long restaurantId){
+        String correlationId = UUID.randomUUID().toString();
+        AgentResponseHolder responseHolder = new AgentResponseHolder();
+        responseMap.put(correlationId, responseHolder);
 
+        String searchTablesMsgJson = String.format("""
+        {
+            "correlationId": "%s",
+            "targetAgent": "staffAgent",
+            "task": "search-tables",
+            "data": {
+                "restaurantId": %d,
+            }
+        }
+        """, correlationId, restaurantId);
+        System.out.println(searchTablesMsgJson);
+        AgentCommand returnTablesCommand = new AgentCommand("staffAgent", searchTablesMsgJson, correlationId, "search-tables");
+        try{
+            JadeGateway.execute(returnTablesCommand);
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+
+        CompletableFuture<Object> result = returnTablesCommand.getFutureResult();
+        return result;
+    }
+
+    public CompletableFuture<Object> deleteTable(String adminUsername, Long tableId){
+        String correlationId = UUID.randomUUID().toString();
+        AgentResponseHolder responseHolder = new AgentResponseHolder();
+        responseMap.put(correlationId, responseHolder);
+
+        String returnStaffMsgJson = String.format("""
+        {
+            "correlationId": "%s",
+            "targetAgent": "staffAgent",
+            "task": "delete-table",
+            "data": {
+                "username": "%s",
+                "tableId": "%d",
+            }
+        }
+        """, correlationId, adminUsername, tableId);
+        AgentCommand returnStaffCommand = new AgentCommand("staffAgent", returnStaffMsgJson, correlationId, "return-all-staff");
+        try{
+            JadeGateway.execute(returnStaffCommand);
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+
+        CompletableFuture<Object> result = returnStaffCommand.getFutureResult();
+        return result;
     }
 
     public void changeTable(){

@@ -112,9 +112,28 @@ public class StaffController extends Agent{
         }
     }
 
-    @PostMapping("api/v1/deletetable")
-    public void deleteTable(){
-
+    @GetMapping("api/v1/searchtables")
+    public ResponseEntity<CompletableFuture<Object>> searchTables(Long restaurantId){
+        try{
+            CompletableFuture<Object> deleteTableResponse = this.staffService.searchTables(restaurantId);
+            return ResponseEntity.ok(deleteTableResponse);
+        }catch(Exception e){
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(CompletableFuture.completedFuture("Error returning restaurant staff."));
+        }
     }
 
+    @PostMapping("api/v1/deletetable")
+    public ResponseEntity<CompletableFuture<Object>> deleteTable(@RequestParam String adminUsername,
+                                                                 @RequestParam Long tableId){
+        try{
+            CompletableFuture<Object> deleteTableResponse = this.staffService.deleteTable(adminUsername, tableId);
+            return ResponseEntity.ok(deleteTableResponse);
+        }catch(Exception e){
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(CompletableFuture.completedFuture("Error returning restaurant staff."));
+        }
+    }
 }

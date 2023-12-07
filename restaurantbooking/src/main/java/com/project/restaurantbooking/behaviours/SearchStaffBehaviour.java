@@ -71,6 +71,11 @@ public class SearchStaffBehaviour extends CyclicBehaviour {
                     }
                     """, correlationId, task, staffListJson);
             }
+            else{
+                myAgent.putBack(msg);
+                block();
+                return;
+            }
 
             ACLMessage searchStaffReply = msg.createReply();
             searchStaffReply.setPerformative(ACLMessage.INFORM);

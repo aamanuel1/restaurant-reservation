@@ -18,6 +18,8 @@ import lombok.SneakyThrows;
 import org.json.JSONObject;
 import org.springframework.context.ApplicationContext;
 
+import java.util.List;
+
 public class CustomerAgent extends Agent {
     CustomerRepository customerRepository;
     RatingRepository ratingRepository;
@@ -80,30 +82,66 @@ public class CustomerAgent extends Agent {
                 JSONObject json = new JSONObject(content);
                 String correlationId = json.getString("correlationId");
                 String task = json.getString("task");
-                Long rating = json.getLong("rating");
-                String feedback = json.getString("feedback");
-                Long restaurantId = json.getLong("restaurantId");
+                Long rating = json.getJSONObject("data").getLong("rating");
+                String feedback = json.getJSONObject("data").getString("feedback");
+                String restaurantName = json.getJSONObject("data").getString("restaurantName");
 
                 String responseToGateway = null;
 
-                responseToGateway = leaveFeedback(restaurantId, rating, feedback, correlationId, task);
+                responseToGateway = leaveFeedback(restaurantName, rating, feedback, correlationId, task);
 
-                System.out.println("\nSuccessfully left feedback\n");
+                // sending reply
+                ACLMessage reply = msg.createReply();
+                reply.setPerformative(ACLMessage.INFORM);
+                reply.setContent(responseToGateway);
+                reply.setConversationId("feedback");
+                reply.setProtocol("feedback");
+                myAgent.send(reply);
+                System.out.println("\nReply Sent\n");
             } else {
                 System.out.println("\n=== CustomerAgent -- No Msg. ===\n"+ msg);
                 block();
             }
         }
 
-        public String leaveFeedback(Long restaurantId, Long rating, String feedback, String correlationId, String task){
-            Restaurant restaurant = restaurantRepository.findById(restaurantId)
-                    .orElseThrow(() -> new RuntimeException("Restaurant not found"));
+        public String leaveFeedback(String restaurantName, Long rating, String feedback, String correlationId, String task){
+            Restaurant restaurant = null;
+            try {
+                // Assuming findRestaurantsByName returns a List<Restaurant>
+                List<Restaurant> restaurants = restaurantRepository.findRestaurantsByName(restaurantName);
+
+                if (!restaurants.isEmpty()) {
+                    restaurant = restaurants.get(0);
+                } else {
+                    // Handle the case when no restaurant is found
+                    String responseToGateway = String.format("""
+                    {
+                        "correlationId": "%s",
+                        "task": "%s",
+                        "status": "failure, Restaurant not found"
+                    }
+                    """, correlationId, task);
+                    return responseToGateway;
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                // Handle the exception appropriately
+                String responseToGateway = String.format("""
+                    {
+                        "correlationId": "%s",
+                        "task": "%s",
+                        "status": "failure, reason unknown"
+                    }
+                    """, correlationId, task);
+                return responseToGateway;
+            }
             Rating r = new Rating(rating, feedback, restaurant);
             ratingRepository.save(r);
             String responseToGateway = String.format("""
                     {
                         "correlationId": "%s",
                         "task": "%s",
+                        "status": "success"
                     }
                     """, correlationId, task);
             return responseToGateway;

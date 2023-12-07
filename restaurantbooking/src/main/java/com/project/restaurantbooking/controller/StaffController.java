@@ -133,7 +133,7 @@ public class StaffController extends Agent{
         }catch(Exception e){
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(CompletableFuture.completedFuture("Error returning restaurant staff."));
+                .body(CompletableFuture.completedFuture("Error deleting table."));
         }
     }
 }

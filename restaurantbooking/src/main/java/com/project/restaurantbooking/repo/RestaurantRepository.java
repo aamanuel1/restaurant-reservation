@@ -21,6 +21,8 @@ public interface RestaurantRepository extends JpaRepository<Restaurant, Long> {
 
     Optional<Restaurant> findFirstByCuisinesContains(Cuisine cuisine);
 
+    @Query("SELECT DISTINCT r FROM Restaurant r LEFT JOIN FETCH r.cuisines")
+    List<Restaurant> findAllWithCuisines();
 
 //    @Query("SELECT r FROM Restaurant r JOIN r.cuisines c WHERE c = :cuisine AND r.wait_time.minutes <= :waitTime")
 //    List<Restaurant> findRestaurantsByCuisineAndWaitTime(@Param("cuisine") Cuisine cuisine, @Param("waitTime") Long waitTime);

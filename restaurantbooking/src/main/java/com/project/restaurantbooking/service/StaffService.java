@@ -18,10 +18,10 @@ import org.springframework.messaging.MessageHeaders;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.sql.Date;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -387,6 +387,42 @@ public class StaffService {
 
         CompletableFuture<Object> result = returnStaffCommand.getFutureResult();
         return result;
+    }
+
+    public CompletableFuture<Object> createShift(String adminUsername, Long tableId, LocalDate date, LocalDateTime startTime, LocalDateTime endTime){
+        String correlationId = UUID.randomUUID().toString();
+        AgentResponseHolder responseHolder = new AgentResponseHolder();
+        responseMap.put(correlationId, responseHolder);
+
+        String createShiftMsgJson = String.format("""
+        {
+            "correlationId": "%s",
+            "targetAgent": "staffAgent",
+            "task": "create-shift",
+            "data": {
+                "adminUsername": "%s",
+                "tableId": %d,
+                "date": "%s",
+                "startTime":"%s",
+                "endTime": "%s",
+            }
+        }
+        """, correlationId, adminUsername, tableId, date.toString(), startTime.toString(), endTime.toString());
+
+        System.out.println(createShiftMsgJson);
+        AgentCommand createStaffCommand = new AgentCommand("staffAgent", createShiftMsgJson, correlationId, "create-shift");
+        try{
+            JadeGateway.execute(createStaffCommand);
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+
+        CompletableFuture<Object> result = createStaffCommand.getFutureResult();
+        return result;
+    }
+
+    public CompletableFuture<Object> deleteShift(){
+        return null;
     }
 
     private String storeRequest(CompletableFuture<?> request){

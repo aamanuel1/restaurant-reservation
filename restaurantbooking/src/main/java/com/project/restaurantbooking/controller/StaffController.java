@@ -13,6 +13,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -151,5 +153,27 @@ public class StaffController extends Agent{
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(CompletableFuture.completedFuture("Error deleting table."));
         }
+    }
+
+    @PostMapping("api/v1/createshift")
+    public ResponseEntity<CompletableFuture<Object>> createShift(@RequestParam String adminUsername,
+                                                                 @RequestParam Long tableId,
+                                                                 @RequestParam LocalDate date,
+                                                                 @RequestParam LocalDateTime startTime,
+                                                                 @RequestParam LocalDateTime endTime){
+        try{
+            CompletableFuture<Object> createShiftResponse = this.staffService.createShift(adminUsername, tableId, date, startTime, endTime);
+            return ResponseEntity.ok(createShiftResponse);
+        }catch(Exception e){
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(CompletableFuture.completedFuture("Error creating shift."));
+        }
+    }
+
+
+    @PostMapping("api/v1/deleteshift")
+    public ResponseEntity<CompletableFuture<Object>> deleteShift(){
+        return null;
     }
 }

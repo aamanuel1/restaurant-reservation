@@ -173,7 +173,26 @@ public class StaffController extends Agent{
 
 
     @PostMapping("api/v1/deleteshift")
-    public ResponseEntity<CompletableFuture<Object>> deleteShift(){
-        return null;
+    public ResponseEntity<CompletableFuture<Object>> deleteShift(String adminUsername, Long shiftId){
+        try{
+            CompletableFuture<Object> deleteShiftResponse = this.staffService.deleteShift(adminUsername, shiftId);
+            return ResponseEntity.ok(deleteShiftResponse);
+        }catch(Exception e){
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(CompletableFuture.completedFuture("Error deleting shift."));
+        }
+    }
+
+    @GetMapping("api/v1/searchshift")
+    public ResponseEntity<CompletableFuture<Object>> searchShifts(String username, Long shiftId){
+        try{
+            CompletableFuture<Object> searchShiftResponse = this.staffService.searchShift(username, shiftId);
+            return ResponseEntity.ok(searchShiftResponse);
+        }catch(Exception e){
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(CompletableFuture.completedFuture("Error deleting shift."));
+        }
     }
 }

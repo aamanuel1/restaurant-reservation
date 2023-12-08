@@ -3,7 +3,6 @@ package com.project.restaurantbooking.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.project.restaurantbooking.controller.AgentResponseHolder;
 import com.project.restaurantbooking.entity.RestaurantTable;
-import com.project.restaurantbooking.entity.Shift;
 import com.project.restaurantbooking.entity.Staff;
 import com.project.restaurantbooking.messagetemplates.*;
 import jade.core.AID;
@@ -18,7 +17,6 @@ import org.springframework.messaging.MessageHeaders;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.sql.Date;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -421,8 +419,64 @@ public class StaffService {
         return result;
     }
 
-    public CompletableFuture<Object> deleteShift(){
-        return null;
+    public CompletableFuture<Object> deleteShift(String adminUsername, Long shiftId){
+        String correlationId = UUID.randomUUID().toString();
+        AgentResponseHolder responseHolder = new AgentResponseHolder();
+        responseMap.put(correlationId, responseHolder);
+
+        String deleteShiftMsgJson = String.format("""
+        {
+            "correlationId": "%s",
+            "targetAgent": "staffAgent",
+            "task": "delete-shift",
+            "data": {
+                "adminUsername": "%s",
+                "shiftId": %d,
+            }
+        }
+        """, correlationId, adminUsername, shiftId);
+
+        System.out.println(deleteShiftMsgJson);
+        AgentCommand deleteShiftCommand = new AgentCommand("staffAgent", deleteShiftMsgJson, correlationId, "delete-shift");
+        try{
+            JadeGateway.execute(deleteShiftCommand);
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+
+        CompletableFuture<Object> result = deleteShiftCommand.getFutureResult();
+        return result;
+
+    }
+
+    public CompletableFuture<Object> searchShift(String username, Long shiftId){
+        String correlationId = UUID.randomUUID().toString();
+        AgentResponseHolder responseHolder = new AgentResponseHolder();
+        responseMap.put(correlationId, responseHolder);
+
+        String searchShiftMsgJson = String.format("""
+        {
+            "correlationId": "%s",
+            "targetAgent": "staffAgent",
+            "task": "search-shift",
+            "data": {
+                "username": "%s",
+                "shiftId": %d,
+            }
+        }
+        """, correlationId, username, shiftId);
+
+        System.out.println(searchShiftMsgJson);
+        AgentCommand searchShiftCommand = new AgentCommand("staffAgent", searchShiftMsgJson, correlationId, "delete-shift");
+        try{
+            JadeGateway.execute(searchShiftCommand);
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+
+        CompletableFuture<Object> result = searchShiftCommand.getFutureResult();
+        return result;
+
     }
 
     private String storeRequest(CompletableFuture<?> request){

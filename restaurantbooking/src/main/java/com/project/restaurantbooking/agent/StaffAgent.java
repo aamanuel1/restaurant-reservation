@@ -45,6 +45,8 @@ public class StaffAgent extends Agent {
         addBehaviour(new ChangeTableBehaviour(this));
         addBehaviour(new CreateTableBehaviour(this));
         addBehaviour(new CreateShiftBehaviour(this));
+        addBehaviour(new DeleteShiftBehaviour(this));
+        addBehaviour(new SearchShiftsBehaviour(this));
     }
 
     protected void takeDown(){

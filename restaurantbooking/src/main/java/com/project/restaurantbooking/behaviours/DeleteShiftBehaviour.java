@@ -20,12 +20,12 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
-public class CreateShiftBehaviour extends CyclicBehaviour {
+public class DeleteShiftBehaviour extends CyclicBehaviour {
 
     private ObjectMapper jsonMapper = new ObjectMapper();
 
-    public CreateShiftBehaviour(Agent agentMan) {
-        super(agentMan);
+    public DeleteShiftBehaviour(Agent agent) {
+        super(agent);
     }
 
     @SneakyThrows
@@ -40,42 +40,34 @@ public class CreateShiftBehaviour extends CyclicBehaviour {
             String correlationId = json.getString("correlationId");
             String task = json.getString("task");
 
-            String createShiftReplyToGateway = null;
+            String deleteShiftReplyToGateway = null;
 
-            if (task.equals("create-shift")) {
+            if (task.equals("delete-shift")) {
                 String adminUsername = json.getJSONObject("data").getString("adminUsername");
-                Long tableId = json.getJSONObject("data").getLong("tableId");
-                String dateString = json.getJSONObject("data").getString("date");
-                String startTimeString = json.getJSONObject("data").getString("startTime");
-                String endTimeString = json.getJSONObject("data").getString("endTime");
-
-                //Change the strings to be LocalDateTimes
-                LocalDate date = LocalDate.parse(dateString);
-                LocalDateTime startTime = LocalDateTime.parse(startTimeString);
-                LocalDateTime endTime = LocalDateTime.parse(endTimeString);
+                Long shiftId = json.getJSONObject("data").getLong("shiftId");
 
                 Boolean isStaffAuthorized = this.isStaffAuthorized(adminUsername);
-                Boolean isCreateShiftSuccessful = null;
+                Boolean isDeleteShiftSuccessful = null;
                 String message = null;
 
                 if (isStaffAuthorized) {
                     try {
-                        isCreateShiftSuccessful = this.createShift(tableId, date, startTime, endTime);
+                        isDeleteShiftSuccessful = this.deleteShift(shiftId);
                     } catch (Exception e) {
                         e.printStackTrace();
-                        isCreateShiftSuccessful = false;
+                        isDeleteShiftSuccessful = false;
                     }
                 }
 
-                if (isStaffAuthorized && isCreateShiftSuccessful) {
-                    message = "Shift successfully created.";
-                } else if (isStaffAuthorized && !isCreateShiftSuccessful) {
-                    message = "Shift creation unsuccessful";
+                if (isStaffAuthorized && isDeleteShiftSuccessful) {
+                    message = "Shift successfully deleted.";
+                } else if (isStaffAuthorized && !isDeleteShiftSuccessful) {
+                    message = "Shift deletion unsuccessful";
                 } else {
                     message = "User not authorized";
                 }
 
-                createShiftReplyToGateway = String.format("""
+                deleteShiftReplyToGateway = String.format("""
                         {
                             "correlationId": "%s",
                             "task": "%s",
@@ -88,11 +80,11 @@ public class CreateShiftBehaviour extends CyclicBehaviour {
                 return;
             }
             ACLMessage createTableReply = msg.createReply();
-            System.out.println(createShiftReplyToGateway);
+            System.out.println(deleteShiftReplyToGateway);
             createTableReply.setPerformative(ACLMessage.INFORM);
-            createTableReply.setContent(createShiftReplyToGateway);
+            createTableReply.setContent(deleteShiftReplyToGateway);
             createTableReply.setConversationId(correlationId);
-            createTableReply.setProtocol("create-table-reply");
+            createTableReply.setProtocol("delete-shift-reply");
             myAgent.send(createTableReply);
         }
         else{
@@ -100,23 +92,17 @@ public class CreateShiftBehaviour extends CyclicBehaviour {
         }
     }
 
-    public Boolean createShift(Long tableId, LocalDate date, LocalDateTime startTime, LocalDateTime endTime){
+    public Boolean deleteShift(Long shiftId){
         ApplicationContext context = SpringContextProvider.getApplicationContext();
-        TableRepository tableRepository = context.getBean(TableRepository.class);
         ShiftRepository shiftRepository = context.getBean(ShiftRepository.class);
 
-        Optional<RestaurantTable> tableToAddShift = tableRepository.findByTableId(tableId);
-        if(tableToAddShift.isEmpty()){
+        Optional<Shift> shiftToDelete = shiftRepository.findById(shiftId);
+        if(shiftToDelete.isEmpty()){
             return false;
         }
 
         try{
-            Shift newShift = new Shift();
-            newShift.setTable(tableToAddShift.get());
-            newShift.setDate(date);
-            newShift.setStartTime(startTime);
-            newShift.setEndTime(endTime);
-            shiftRepository.save(newShift);
+            shiftRepository.delete(shiftToDelete.get());
         }catch(Exception e){
             e.printStackTrace();
             return false;

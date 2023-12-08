@@ -18,7 +18,7 @@ public class StaffAgent extends Agent {
     protected StaffRepository staffRepository;
 
     protected void setup(){
-        System.out.println("Testing. Placeholder behaviour");
+        System.out.println("Starting staff agent.");
         ApplicationContext context = SpringContextProvider.getApplicationContext();
         staffRepository = context.getBean(StaffRepository.class);
         //Register the staff agent.
@@ -34,6 +34,7 @@ public class StaffAgent extends Agent {
             e.printStackTrace();
         }
 
+        //Set up Object to Agent communication ability, and add behaviours.
         setEnabledO2ACommunication(true, 0);
         addBehaviour(new LoginBehaviour(this, staffRepository));
         addBehaviour(new AddStaffBehaviour(this));

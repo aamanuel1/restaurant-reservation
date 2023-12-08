@@ -26,10 +26,13 @@ import java.util.concurrent.ConcurrentHashMap;
 @Service
 public class StaffService {
 
+    //JsonMapper
     private final ObjectMapper objectMapper = new ObjectMapper();
 
+    //Hashmap for first few methods below, for keeping track of async requests.
     private final ConcurrentHashMap<String, CompletableFuture<?>> pendingRequests = new ConcurrentHashMap<>();
 
+    //
     private final Map<String, AgentResponseHolder> responseMap = new ConcurrentHashMap<>();
 
     @Autowired
@@ -63,6 +66,8 @@ public class StaffService {
         }
     }
 
+    //Note, the next two methods are based on a Data Transfer Object (DTO) method using Jackson, later on,
+    //we change the process. The object is sent to TheGatewayAgent which sends it to an instanceof check for the object type.
     private Object extractObjectFromResponse(String message){
         ObjectMapper objectMapper = new ObjectMapper();
 
@@ -213,11 +218,15 @@ public class StaffService {
 
     }
 
+    //From here, we format a JSON to send to TheGatewayAgent to route to the right agent using a generalized
+    //AgentCommand object, instead of the previous method.
     public CompletableFuture<Object> searchStaff(String adminUsername, String findUsername){
+        //Put request into an async response map.
         String correlationId = UUID.randomUUID().toString();
         AgentResponseHolder responseHolder = new AgentResponseHolder();
         responseMap.put(correlationId, responseHolder);
 
+        //Format the string into a json and feed the information from the function call.
         String searchStaffMsgJson = String.format("""
         {
             "correlationId": "%s",
@@ -229,6 +238,8 @@ public class StaffService {
             }
         }
         """, correlationId, adminUsername, findUsername);
+
+        //Send to the gateway agent through the JadeGateway API
         AgentCommand searchStaffCommand = new AgentCommand("staffAgent", searchStaffMsgJson, correlationId, "search-staff");
         try{
             JadeGateway.execute(searchStaffCommand);
@@ -236,11 +247,13 @@ public class StaffService {
             e.printStackTrace();
         }
 
+        //Wait for the future response, then send it to the controller.
         CompletableFuture<Object> result = searchStaffCommand.getFutureResult();
         return result;
     }
 
     public CompletableFuture<Object> returnAllStaff(String adminUsername, Long restaurantId){
+        //Similar process as above.
         String correlationId = UUID.randomUUID().toString();
         AgentResponseHolder responseHolder = new AgentResponseHolder();
         responseMap.put(correlationId, responseHolder);
@@ -540,6 +553,7 @@ public class StaffService {
     }
 
     private String storeRequest(CompletableFuture<?> request){
+        //private helper method for some of the Jackson DTO methods above.
         String requestId = UUID.randomUUID().toString();
         pendingRequests.put(requestId, request);
         return requestId;

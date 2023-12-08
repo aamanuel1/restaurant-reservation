@@ -35,7 +35,6 @@ public class AddStaffBehaviour extends CyclicBehaviour {
     @Override
     public void action() {
         //Establish Spring Application context.
-        System.out.println("Getting to action of add staff");
         ApplicationContext context = SpringContextProvider.getApplicationContext();
         staffAgentResponseChannel = context.getBean("StaffAgentReplyChannel", DirectChannel.class);
         ACLMessage addStaffMsg = myAgent.receive(messageTemplate);
@@ -81,7 +80,6 @@ public class AddStaffBehaviour extends CyclicBehaviour {
             } catch (JsonProcessingException e) {
                 e.printStackTrace();
             }
-            System.out.println("Message time.");
             Message<String> addStaffSpringMessage = MessageBuilder.withPayload(addStaffResponseJSON)
                     .setHeader("requestId", addStaffMsg.getConversationId())
                     .build();

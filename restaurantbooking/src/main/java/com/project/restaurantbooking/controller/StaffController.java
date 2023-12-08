@@ -1,7 +1,6 @@
 package com.project.restaurantbooking.controller;
 
 import com.project.restaurantbooking.entity.RestaurantTable;
-import com.project.restaurantbooking.entity.Shift;
 import com.project.restaurantbooking.entity.Staff;
 import com.project.restaurantbooking.messagetemplates.AddStaffResponse;
 import com.project.restaurantbooking.messagetemplates.ChangeStaffResponse;

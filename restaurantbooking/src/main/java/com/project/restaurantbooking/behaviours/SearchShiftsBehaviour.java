@@ -22,6 +22,8 @@ import java.util.Optional;
 
 public class SearchShiftsBehaviour extends CyclicBehaviour {
 
+    //Note, for the json mapper, we need to include some modules to deal with a lazy loading
+    //issue with some of the linked foreign keys in restaurant and table.
     private ObjectMapper jsonMapper = new ObjectMapper();
     public SearchShiftsBehaviour(Agent agent) {
         super(agent);
@@ -46,15 +48,20 @@ public class SearchShiftsBehaviour extends CyclicBehaviour {
 
             String searchShiftResultsToGateway = null;
 
+            //match the task with the helper methods
             if (task.equals("search-shift")) {
+                //get the information from the JSON. Perform database operations with help
+                //of helper functions with access to database (e.g searchShiftById())
                 Long shiftId = json.getJSONObject("data").getLong("shiftId");
                 Optional<Shift> returnedShift = this.searchShiftById(shiftId);
                 String shiftInfoJson = null;
+                //Perform check on the database operation.
                 if(!returnedShift.isEmpty()){
                     shiftInfoJson = jsonMapper.writeValueAsString(returnedShift.get());
                     System.out.println(shiftInfoJson);
                 }
 
+                //format the response json.
                 searchShiftResultsToGateway = String.format("""
                     {
                         "correlationId": "%s",
@@ -99,11 +106,13 @@ public class SearchShiftsBehaviour extends CyclicBehaviour {
                     }                       
                     """, correlationId, task, shiftInfoJson);
             }
+            //otherwise, put the message back and let another behaviour read it.
             else{
                 myAgent.putBack(msg);
                 block();
                 return;
             }
+            //Send the message back to the Jade Gateway Agent.
             ACLMessage searchTablesReply = msg.createReply();
             System.out.println(searchShiftResultsToGateway);
             searchTablesReply.setPerformative(ACLMessage.INFORM);
@@ -117,6 +126,7 @@ public class SearchShiftsBehaviour extends CyclicBehaviour {
         }
     }
 
+    //Helper methods, for database access.
     private Optional<Shift> searchShiftById(Long shiftId) {
         ApplicationContext context = SpringContextProvider.getApplicationContext();
         ShiftRepository shiftRepository = context.getBean(ShiftRepository.class);

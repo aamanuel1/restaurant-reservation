@@ -95,10 +95,9 @@ public class RestaurantAgent extends Agent {
 
                 String responseToGateway = null;
                 System.out.println("RestAgent: data "+ json.getJSONObject("data"));
-                System.out.println("RestAgent: data "+ json.getJSONObject("data").getString("foodName"));
+//                System.out.println("RestAgent: data "+ json.getJSONObject("data").getString("foodName"));
 
                 if (task.equals("inquire")) {
-//                    JSONObject data = json.getJSONObject("data");
                     String foodName = json.getJSONObject("data").getString("foodName");
                     System.out.println("RestAgent: foodName: "+ json.getJSONObject("data"));
                     responseToGateway = inquireAboutFood(foodName, correlationId, task);
@@ -114,8 +113,13 @@ public class RestaurantAgent extends Agent {
                     long reservationNumber = json.getJSONObject("data").getLong("reservationNumber");
                     responseToGateway = getReservationDetails(correlationId, task, reservationNumber);
 
+                } else if (task.equals("cancelReservation")) {
+                    long reservationNumber = json.getJSONObject("data").getLong("reservationNumber");
+                    responseToGateway = cancelReservation(correlationId, task, reservationNumber);
+
                 } else if (task.equals("getAllReservations")) {
-                    String customerEmail = json.getJSONObject("data").getString("email");
+
+                String customerEmail = json.getJSONObject("data").getString("email");
                     responseToGateway = fetchAllReservationForCustomer(responseToGateway, correlationId, task, customerEmail);
                 }
 
@@ -159,6 +163,36 @@ public class RestaurantAgent extends Agent {
                         "reservation": %s
                     }
                     """, correlationId, task, JSONObject.quote(message), reservationJSON);
+            }
+        }
+
+        private String cancelReservation(String correlationId, String task, long reservationNumber) {
+            String message;
+            Optional<Reservation> reservation = reservationRepository.findReservationByReservationNumber(reservationNumber);
+            if (reservation.isEmpty()) {
+                message = "This reservation does not exist";
+                return String.format("""
+                    {
+                        "correlationId": "%s",
+                        "task": "%s",
+                        "message": %s,
+                    }
+                    """, correlationId, task, JSONObject.quote(message));
+            } else {
+                Reservation reservation1 = reservation.get();
+                reservationRepository.deleteById(reservation1.getId());
+                JSONObject reservationJSON = new JSONObject(reservation1);
+                message = "Success! Your reservation has been cancelled successfully!";
+                String status = "Success!";
+
+                return String.format("""
+                    {
+                        "correlationId": "%s",
+                        "task": "%s",
+                        "message": %s,
+                        "status": %s
+                    }
+                    """, correlationId, task, JSONObject.quote(message), JSONObject.quote(status));
             }
         }
 

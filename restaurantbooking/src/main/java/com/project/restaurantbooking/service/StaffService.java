@@ -269,13 +269,33 @@ public class StaffService {
         return result;
     }
 
+    public CompletableFuture<Object> createTable(String adminUsername, Long restaurantId, int tableOccupancyNum, Boolean available){
+        String correlationId = UUID.randomUUID().toString();
+        AgentResponseHolder responseHolder = new AgentResponseHolder();
+        responseMap.put(correlationId, responseHolder);
+        String createTableMsgJson = String.format("""
+        {
+            "correlationId": "%s",
+            "targetAgent": "staffAgent",
+            "task": "create-table",
+            "data": {
+                "adminUsername": "%s",
+                "restaurantId": %d,
+                "tableOccupancyNum": %d,
+                "available": %s,
+            }
+        }
+        """, correlationId, adminUsername, restaurantId, tableOccupancyNum, available);
+        System.out.println(createTableMsgJson);
+        AgentCommand createTableCommand = new AgentCommand("staffAgent", createTableMsgJson, correlationId, "create-table");
+        try{
+            JadeGateway.execute(createTableCommand);
+        }catch(Exception e){
+            e.printStackTrace();
+        }
 
-    public void createEmptyTable(Long restaurantId, int tableOccupancyNum, Boolean available){
-
-    }
-
-    public void createTable(Long restaurantId, int tableOccupancyNum, Boolean available, List<Shift> timeslots){
-
+        CompletableFuture<Object> result = createTableCommand.getFutureResult();
+        return result;
     }
 
     public CompletableFuture<Object> searchTables(Long restaurantId){
@@ -367,10 +387,6 @@ public class StaffService {
 
         CompletableFuture<Object> result = returnStaffCommand.getFutureResult();
         return result;
-    }
-
-    public void changeTable(){
-
     }
 
     private String storeRequest(CompletableFuture<?> request){

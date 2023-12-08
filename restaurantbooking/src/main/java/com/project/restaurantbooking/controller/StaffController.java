@@ -100,18 +100,17 @@ public class StaffController extends Agent{
     }
 
     @PostMapping("api/v1/addtable")
-    public void createTable(@RequestParam Long restaurantId,
+    public ResponseEntity<CompletableFuture<Object>> createTable(@RequestParam String adminUsername,
+                            @RequestParam Long restaurantId,
                             @RequestParam int tableOccupancyNum,
-                            @RequestParam Boolean available,
-                            @RequestParam(required = false) ArrayList<Shift> timeslots){
-
-
-        if(timeslots == null){
-            //use empty timeslots
-            staffService.createEmptyTable(restaurantId, tableOccupancyNum, available);
-        }
-        else{
-            staffService.createTable(restaurantId, tableOccupancyNum, available, timeslots);
+                            @RequestParam Boolean available){
+        try{
+            CompletableFuture<Object> createTableResponse = this.staffService.createTable(adminUsername, restaurantId, tableOccupancyNum, available);
+            return ResponseEntity.ok(createTableResponse);
+        }catch(Exception e){
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(CompletableFuture.completedFuture("Error returning restaurant staff."));
         }
     }
 

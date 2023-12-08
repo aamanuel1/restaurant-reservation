@@ -16,6 +16,7 @@ import lombok.SneakyThrows;
 import org.json.JSONObject;
 import org.springframework.context.ApplicationContext;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -46,11 +47,47 @@ public class SearchShiftsBehaviour extends CyclicBehaviour {
             String searchShiftResultsToGateway = null;
 
             if (task.equals("search-shift")) {
-                Long restaurantId = json.getJSONObject("data").getLong("shiftId");
-                Optional<Shift> returnedShift = this.searchShiftById(restaurantId);
+                Long shiftId = json.getJSONObject("data").getLong("shiftId");
+                Optional<Shift> returnedShift = this.searchShiftById(shiftId);
                 String shiftInfoJson = null;
                 if(!returnedShift.isEmpty()){
                     shiftInfoJson = jsonMapper.writeValueAsString(returnedShift.get());
+                    System.out.println(shiftInfoJson);
+                }
+
+                searchShiftResultsToGateway = String.format("""
+                    {
+                        "correlationId": "%s",
+                        "task": "%s",
+                        "shiftInfo": %s,
+                    }                       
+                    """, correlationId, task, shiftInfoJson);
+            }
+            else if (task.equals("search-shift-by-day")) {
+                String dayString = json.getJSONObject("data").getString("day");
+                Long restaurantId = json.getJSONObject("data").getLong("restaurantId");
+                LocalDate day = LocalDate.parse(dayString);
+                List<Shift> returnedShiftsByDay = this.searchShiftByDay(restaurantId, day);
+                String shiftInfoJson = null;
+                if(!returnedShiftsByDay.isEmpty()){
+                    shiftInfoJson = jsonMapper.writeValueAsString(returnedShiftsByDay);
+                    System.out.println(shiftInfoJson);
+                }
+
+                searchShiftResultsToGateway = String.format("""
+                    {
+                        "correlationId": "%s",
+                        "task": "%s",
+                        "shiftInfo": %s,
+                    }                       
+                    """, correlationId, task, shiftInfoJson);
+            }
+            else if (task.equals("return-all-shifts")) {
+                Long restaurantId = json.getJSONObject("data").getLong("restaurantId");
+                List<Shift> allShifts = this.returnAllShifts(restaurantId);
+                String shiftInfoJson = null;
+                if(!allShifts.isEmpty()){
+                    shiftInfoJson = jsonMapper.writeValueAsString(allShifts);
                     System.out.println(shiftInfoJson);
                 }
 
@@ -85,4 +122,17 @@ public class SearchShiftsBehaviour extends CyclicBehaviour {
         ShiftRepository shiftRepository = context.getBean(ShiftRepository.class);
         return shiftRepository.findByShiftId(shiftId);
     }
+
+    private List<Shift> searchShiftByDay(Long restaurantId, LocalDate date) {
+        ApplicationContext context = SpringContextProvider.getApplicationContext();
+        ShiftRepository shiftRepository = context.getBean(ShiftRepository.class);
+        return shiftRepository.findByDateAndRestaurantId(restaurantId, date);
+    }
+
+    private List<Shift> returnAllShifts(Long restaurantId) {
+        ApplicationContext context = SpringContextProvider.getApplicationContext();
+        ShiftRepository shiftRepository = context.getBean(ShiftRepository.class);
+        return shiftRepository.findByRestaurantId(restaurantId);
+    }
+
 }

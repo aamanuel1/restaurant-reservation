@@ -192,7 +192,31 @@ public class StaffController extends Agent{
         }catch(Exception e){
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(CompletableFuture.completedFuture("Error deleting shift."));
+                    .body(CompletableFuture.completedFuture("Error searching for shifts."));
+        }
+    }
+
+    @GetMapping("api/v1/searchshiftbyday")
+    public ResponseEntity<CompletableFuture<Object>> searchShiftByDay(String username, Long restaurantId, LocalDate day){
+        try{
+            CompletableFuture<Object> searchShiftResponse = this.staffService.searchShiftByDay(username, restaurantId, day);
+            return ResponseEntity.ok(searchShiftResponse);
+        }catch(Exception e){
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(CompletableFuture.completedFuture("Error searching for shifts."));
+        }
+    }
+
+    @GetMapping("api/v1/returnallshifts")
+    public ResponseEntity<CompletableFuture<Object>> returnAllShifts(@RequestParam String username, @RequestParam Long restaurantId){
+        try{
+            CompletableFuture<Object> returnAllShiftsResponse = this.staffService.returnAllShifts(username, restaurantId);
+            return ResponseEntity.ok(returnAllShiftsResponse);
+        }catch(Exception e){
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(CompletableFuture.completedFuture("Error searching for shifts."));
         }
     }
 }

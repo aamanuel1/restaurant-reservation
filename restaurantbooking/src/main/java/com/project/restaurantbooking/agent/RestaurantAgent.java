@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -69,21 +70,10 @@ public class RestaurantAgent extends Agent {
         // addBehaviour(new CancellationServer());
     }
 
-    // Define inner class for handling reservation requests
-    private class ReservationRequestsServer extends CyclicBehaviour {
-//        private final RestaurantRepository restaurantRepository;
-//        private final ReservationRepository reservationRepository;
-//        private final FoodRepository foodRepository;
 
-        private ReservationRequestsServer(
-//                Agent agent, RestaurantRepository restaurantRepository,
-//                                          ReservationRepository reservationRepository,
-//                                          FoodRepository foodRepository
-        ) {
-//            super(agent);
-//            this.restaurantRepository = restaurantRepository;
-//            this.reservationRepository = reservationRepository;
-//            this.foodRepository = foodRepository;
+    private class ReservationRequestsServer extends CyclicBehaviour {
+        private ReservationRequestsServer() {
+
         }
 
         @SneakyThrows
@@ -103,20 +93,27 @@ public class RestaurantAgent extends Agent {
                 String correlationId = json.getString("correlationId");
                 String task = json.getString("task");
 
-
                 String responseToGateway = null;
+                System.out.println("RestAgent: data "+ json.getJSONObject("data"));
+                System.out.println("RestAgent: data "+ json.getJSONObject("data").getString("foodName"));
 
                 if (task.equals("inquire")) {
 //                    JSONObject data = json.getJSONObject("data");
                     String foodName = json.getJSONObject("data").getString("foodName");
-                    responseToGateway = inquireAboutFood(foodName, responseToGateway, correlationId, task);
+                    System.out.println("RestAgent: foodName: "+ json.getJSONObject("data"));
+                    responseToGateway = inquireAboutFood(foodName, correlationId, task);
                     System.out.println("\nRestAgCycBehaviour: ResponseJSON "+ responseToGateway);
 
                 } else if (task.equals("reserve")) {
                     String foodName = json.getJSONObject("data").getString("foodName");
                     String waitTime = json.getJSONObject("data").getString("waitTime");
                     String customerEmail = json.getJSONObject("data").getString("email");
-                    responseToGateway = makeReservation(foodName, waitTime, responseToGateway, correlationId, task, customerEmail);
+                    responseToGateway = makeReservation(foodName, waitTime, correlationId, task, customerEmail);
+
+                } else if (task.equals("getReservationDetails")) {
+                    long reservationNumber = json.getJSONObject("data").getLong("reservationNumber");
+                    responseToGateway = getReservationDetails(correlationId, task, reservationNumber);
+
                 } else if (task.equals("getAllReservations")) {
                     String customerEmail = json.getJSONObject("data").getString("email");
                     responseToGateway = fetchAllReservationForCustomer(responseToGateway, correlationId, task, customerEmail);
@@ -136,32 +133,87 @@ public class RestaurantAgent extends Agent {
             }
         }
 
-        public String inquireAboutFood(String foodName, String responseToGateway, String correlationId, String task) {
+        private String getReservationDetails(String correlationId, String task, long reservationNumber) {
+            String responseToGateway;
+            String message;
+            Optional<Reservation> reservation = reservationRepository.findReservationByReservationNumber(reservationNumber);
+            if (reservation.isEmpty()) {
+                message = "This reservation does not exist";
+                return responseToGateway = String.format("""
+                    {
+                        "correlationId": "%s",
+                        "task": "%s",
+                        "message": %s,
+                    }
+                    """, correlationId, task, JSONObject.quote(message));
+            } else {
+                Reservation reservation1 = reservation.get();
+                JSONObject reservationJSON = new JSONObject(reservation1);
+                message = "See your reservation details below";
+
+                return responseToGateway = String.format("""
+                    {
+                        "correlationId": "%s",
+                        "task": "%s",
+                        "message": %s,
+                        "reservation": %s
+                    }
+                    """, correlationId, task, JSONObject.quote(message), reservationJSON);
+            }
+        }
+
+        public String inquireAboutFood(String foodName, String correlationId, String task) {
             String message = null;
             Food food = foodRepository.findFoodByName(foodName);
-            JSONObject foodJson = (food != null) ? new JSONObject(food) : null;
+            JSONObject foodJson = (food != null) ? new JSONObject(food) : new JSONObject(); // Use an empty JSON object instead of null
 
             List<Restaurant> restaurantList = null;
             if (food != null) {
                 restaurantList = restaurantRepository.findRestaurantsByCuisine(food.getCuisine());
+//                System.out.println("RestAgent: restList "+ restaurantList);
                 message = foodName + " is available at the Restaurants listed below. Proceed to make your reservation.";
             } else {
-                message = foodName + " not available. The food you are look for is not served by any of our Restaurants";
+                message = foodName + " not available. The food you are looking for is not served by any of our Restaurants";
             }
-            JSONArray restaurantListJson = (restaurantList != null) ? new JSONArray(restaurantList) : null;
-            responseToGateway = String.format("""
+            JSONArray restaurantListJson = (restaurantList != null) ? new JSONArray(restaurantList) : new JSONArray(); // Use an empty JSON array instead of null
+
+            return String.format("""
                     {
                         "correlationId": "%s",
                         "task": "%s",
                         "food": %s,
-                        "message": "%s",
+                        "message": %s,
                         "restaurants": %s
                     }
-                    """, correlationId, task, foodJson, message, restaurantListJson);
-            return responseToGateway;
+                    """, correlationId, task, foodJson.toString(), JSONObject.quote(message), restaurantListJson.toString());
         }
 
-        public String makeReservation(String foodName, String waitTimeString, String responseToGateway, String correlationId, String task, String customerEmail) {
+//        public String inquireAboutFood(String foodName, String responseToGateway, String correlationId, String task) {
+//            String message = null;
+//            Food food = foodRepository.findFoodByName(foodName);
+//            JSONObject foodJson = (food != null) ? new JSONObject(food) : null;
+//
+//            List<Restaurant> restaurantList = null;
+//            if (food != null) {
+//                restaurantList = restaurantRepository.findRestaurantsByCuisine(food.getCuisine());
+//                message = foodName + " is available at the Restaurants listed below. Proceed to make your reservation.";
+//            } else {
+//                message = foodName + " not available. The food you are look for is not served by any of our Restaurants";
+//            }
+//            JSONArray restaurantListJson = (restaurantList != null) ? new JSONArray(restaurantList) : null;
+//            responseToGateway = String.format("""
+//                    {
+//                        "correlationId": "%s",
+//                        "task": "%s",
+//                        "food": %s,
+//                        "message": "%s",
+//                        "restaurants": %s
+//                    }
+//                    """, correlationId, task, foodJson, message, restaurantListJson);
+//            return responseToGateway;
+//        }
+
+        public String makeReservation(String foodName, String waitTimeString, String correlationId, String task, String customerEmail) {
             Customer customer = getCustomerInfo(customerEmail);
             if (customer == null) {
                 String message = "No customer with email: " + customerEmail + " in the database";
@@ -182,6 +234,7 @@ public class RestaurantAgent extends Agent {
             List<Restaurant> eligibleRestaurantList = new ArrayList<>();
             Restaurant restaurant = null;
 
+            String responseToGateway;
             if (waitTimes.isEmpty()) {
                 message = "Sorry! No restaurant currently has a wait time less than "+ waitTimeString;
                 responseToGateway = String.format("""

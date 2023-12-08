@@ -94,6 +94,33 @@ public class ReservationController {
         }
     }
 
+    @GetMapping("/fetch/one")
+    public ResponseEntity<CompletableFuture<Object>> getReservationDetails(@RequestParam long reservationNumber) {
+        String correlationId = UUID.randomUUID().toString();
+        AgentResponseHolder responseHolder = new AgentResponseHolder();
+        responseMap.put(correlationId, responseHolder);
+        String msgJson = String.format("""
+        {
+            "correlationId": "%s",
+            "targetAgent": "restaurantAgent",
+            "task": "getReservationDetails",
+            "data": {
+                "reservationNumber": %d,
+            }
+        }
+        """, correlationId, reservationNumber);
+        AgentCommand agentCommand = new AgentCommand("restaurantAgent", msgJson, correlationId, "getReservationDetails");
+        try {
+            JadeGateway.execute(agentCommand);
+            CompletableFuture<Object> result = agentCommand.getFutureResult();
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(CompletableFuture.completedFuture("Error fetching customer's reservation"));
+        }
+    }
+
     public void receiveResponse(String correlationId, String response) {
         AgentResponseHolder responseHolder = responseMap.get(correlationId);
         if (responseHolder != null) {

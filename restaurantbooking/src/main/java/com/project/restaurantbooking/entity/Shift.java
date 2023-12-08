@@ -7,6 +7,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import java.io.Serializable;
 import java.sql.Date;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
@@ -29,13 +30,13 @@ public class Shift implements Serializable {
     @JoinColumn(name = "table_id", nullable = true)
     private RestaurantTable table;
 
-    private Date date;
+    private LocalDate date;
 
-    private LocalDate startTime;
+    private LocalDateTime startTime;
 
-    private LocalDate endTime;
+    private LocalDateTime endTime;
 
-    public Shift(Staff staff, RestaurantTable table, Date date, LocalDate startTime, LocalDate endTime) {
+    public Shift(Staff staff, RestaurantTable table, LocalDate date, LocalDateTime startTime, LocalDateTime endTime) {
         this.staff = staff;
         this.table = table;
         this.date = date;

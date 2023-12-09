@@ -1,6 +1,6 @@
 package com.project.restaurantbooking.controller;
 
-import com.project.restaurantbooking.entity.Shift;
+import com.project.restaurantbooking.entity.RestaurantTable;
 import com.project.restaurantbooking.entity.Staff;
 import com.project.restaurantbooking.messagetemplates.AddStaffResponse;
 import com.project.restaurantbooking.messagetemplates.ChangeStaffResponse;
@@ -8,8 +8,12 @@ import com.project.restaurantbooking.messagetemplates.DeleteStaffResponse;
 import com.project.restaurantbooking.service.StaffService;
 import jade.core.Agent;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -43,8 +47,10 @@ public class StaffController extends Agent{
     }
 
     @PostMapping("api/v1/addstaff")
-    public CompletableFuture<AddStaffResponse> addStaff(@RequestParam String username, @RequestBody Staff newStaff){
-        return staffService.addStaff(username, newStaff);
+    public CompletableFuture<AddStaffResponse> addStaff(@RequestParam String username,
+                                                        @RequestParam Long restaurantId,
+                                                        @RequestBody Staff newStaff){
+        return staffService.addStaff(username, restaurantId, newStaff);
     }
 
     @PostMapping("api/v1/deletestaff")
@@ -64,13 +70,27 @@ public class StaffController extends Agent{
     }
 
     @GetMapping("api/v1/searchstaff")
-    public Optional<Staff> searchStaff(@RequestParam String adminUsername, @RequestParam String findUsername){
-        return this.staffService.searchStaff(adminUsername, findUsername);
+    public ResponseEntity<CompletableFuture<Object>> searchStaff(@RequestParam String adminUsername, @RequestParam String findUsername){
+        try{
+            CompletableFuture<Object> searchStaffResult = this.staffService.searchStaff(adminUsername, findUsername);
+            return ResponseEntity.ok(searchStaffResult);
+        }catch(Exception e){
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(CompletableFuture.completedFuture("Error sending search staff request."));
+        }
     }
 
     @GetMapping("api/v1/returnallstaff")
-    public List<Staff> returnAllStaff(@RequestParam String adminUsername){
-        return this.staffService.returnAllStaff(adminUsername);
+    public ResponseEntity<CompletableFuture<Object>> returnAllStaff(@RequestParam String adminUsername, @RequestParam Long restaurantId){
+        try{
+            CompletableFuture<Object> returnAllStaffResult = this.staffService.returnAllStaff(adminUsername, restaurantId);
+            return ResponseEntity.ok(returnAllStaffResult);
+        }catch(Exception e){
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(CompletableFuture.completedFuture("Error returning restaurant staff."));
+        }
     }
 
     @PostMapping("api/v1/changestaff")
@@ -83,22 +103,121 @@ public class StaffController extends Agent{
     }
 
     @PostMapping("api/v1/addtable")
-    public void createTable(@RequestParam Long restaurantId,
+    public ResponseEntity<CompletableFuture<Object>> createTable(@RequestParam String adminUsername,
+                            @RequestParam Long restaurantId,
                             @RequestParam int tableOccupancyNum,
-                            @RequestParam Boolean available,
-                            @RequestParam(required = false) ArrayList<Shift> timeslots){
-        if(timeslots == null){
-            //use empty timeslots
-            staffService.createEmptyTable(restaurantId, tableOccupancyNum, available);
+                            @RequestParam Boolean available){
+        try{
+            CompletableFuture<Object> createTableResponse = this.staffService.createTable(adminUsername, restaurantId, tableOccupancyNum, available);
+            return ResponseEntity.ok(createTableResponse);
+        }catch(Exception e){
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(CompletableFuture.completedFuture("Error returning restaurant staff."));
         }
-        else{
-            staffService.createTable(restaurantId, tableOccupancyNum, available, timeslots);
+    }
+
+    @GetMapping("api/v1/searchtables")
+    public ResponseEntity<CompletableFuture<Object>> searchTables(Long restaurantId){
+        try{
+            CompletableFuture<Object> deleteTableResponse = this.staffService.searchTables(restaurantId);
+            return ResponseEntity.ok(deleteTableResponse);
+        }catch(Exception e){
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(CompletableFuture.completedFuture("Error returning restaurant staff."));
+        }
+    }
+
+    @PostMapping("api/v1/changetable")
+    public ResponseEntity<CompletableFuture<Object>> changeTable(@RequestParam String adminUsername,
+                                                                 @RequestParam Long tableId,
+                                                                 @RequestBody RestaurantTable changeTableAttributes){
+        try{
+            CompletableFuture<Object> deleteTableResponse = this.staffService.changeTableAttributes(adminUsername, tableId, changeTableAttributes);
+            return ResponseEntity.ok(deleteTableResponse);
+        }catch(Exception e){
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(CompletableFuture.completedFuture("Error changing table."));
         }
     }
 
     @PostMapping("api/v1/deletetable")
-    public void deleteTable(){
-
+    public ResponseEntity<CompletableFuture<Object>> deleteTable(@RequestParam String adminUsername,
+                                                                 @RequestParam Long tableId){
+        try{
+            CompletableFuture<Object> deleteTableResponse = this.staffService.deleteTable(adminUsername, tableId);
+            return ResponseEntity.ok(deleteTableResponse);
+        }catch(Exception e){
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(CompletableFuture.completedFuture("Error deleting table."));
+        }
     }
 
+    @PostMapping("api/v1/createshift")
+    public ResponseEntity<CompletableFuture<Object>> createShift(@RequestParam String adminUsername,
+                                                                 @RequestParam Long tableId,
+                                                                 @RequestParam LocalDate date,
+                                                                 @RequestParam LocalDateTime startTime,
+                                                                 @RequestParam LocalDateTime endTime){
+        try{
+            CompletableFuture<Object> createShiftResponse = this.staffService.createShift(adminUsername, tableId, date, startTime, endTime);
+            return ResponseEntity.ok(createShiftResponse);
+        }catch(Exception e){
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(CompletableFuture.completedFuture("Error creating shift."));
+        }
+    }
+
+
+    @PostMapping("api/v1/deleteshift")
+    public ResponseEntity<CompletableFuture<Object>> deleteShift(String adminUsername, Long shiftId){
+        try{
+            CompletableFuture<Object> deleteShiftResponse = this.staffService.deleteShift(adminUsername, shiftId);
+            return ResponseEntity.ok(deleteShiftResponse);
+        }catch(Exception e){
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(CompletableFuture.completedFuture("Error deleting shift."));
+        }
+    }
+
+    @GetMapping("api/v1/searchshift")
+    public ResponseEntity<CompletableFuture<Object>> searchShifts(String username, Long shiftId){
+        try{
+            CompletableFuture<Object> searchShiftResponse = this.staffService.searchShift(username, shiftId);
+            return ResponseEntity.ok(searchShiftResponse);
+        }catch(Exception e){
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(CompletableFuture.completedFuture("Error searching for shifts."));
+        }
+    }
+
+    @GetMapping("api/v1/searchshiftbyday")
+    public ResponseEntity<CompletableFuture<Object>> searchShiftByDay(String username, Long restaurantId, LocalDate day){
+        try{
+            CompletableFuture<Object> searchShiftResponse = this.staffService.searchShiftByDay(username, restaurantId, day);
+            return ResponseEntity.ok(searchShiftResponse);
+        }catch(Exception e){
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(CompletableFuture.completedFuture("Error searching for shifts."));
+        }
+    }
+
+    @GetMapping("api/v1/returnallshifts")
+    public ResponseEntity<CompletableFuture<Object>> returnAllShifts(@RequestParam String username, @RequestParam Long restaurantId){
+        try{
+            CompletableFuture<Object> returnAllShiftsResponse = this.staffService.returnAllShifts(username, restaurantId);
+            return ResponseEntity.ok(returnAllShiftsResponse);
+        }catch(Exception e){
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(CompletableFuture.completedFuture("Error searching for shifts."));
+        }
+    }
 }

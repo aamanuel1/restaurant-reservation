@@ -38,7 +38,7 @@ public class Reservation {
         this.reservationNumber = generateReservationNumber();
     }
 
-    public static Long generateReservationNumber() {
+    public static long generateReservationNumber() {
         Random random = new Random();
         return 1000 + random.nextLong(9000);
     }

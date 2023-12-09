@@ -3,9 +3,11 @@ package com.project.restaurantbooking.behaviours;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.project.restaurantbooking.SpringContextProvider;
+import com.project.restaurantbooking.entity.Restaurant;
 import com.project.restaurantbooking.entity.Staff;
 import com.project.restaurantbooking.messagetemplates.AddStaffRequest;
 import com.project.restaurantbooking.messagetemplates.AddStaffResponse;
+import com.project.restaurantbooking.repo.RestaurantRepository;
 import com.project.restaurantbooking.repo.StaffRepository;
 import jade.core.Agent;
 import jade.core.behaviours.CyclicBehaviour;
@@ -34,11 +36,12 @@ public class AddStaffBehaviour extends CyclicBehaviour {
 
     @Override
     public void action() {
-        //Establish Spring Application context.
+        //Establish Spring Application context. Response channel to send back to spring boot service.
         ApplicationContext context = SpringContextProvider.getApplicationContext();
         staffAgentResponseChannel = context.getBean("StaffAgentReplyChannel", DirectChannel.class);
         ACLMessage addStaffMsg = myAgent.receive(messageTemplate);
         if(addStaffMsg != null){
+            //Set up the request object, then turn the json into a request message object.
             AddStaffRequest addStaffRequest = null;
 
             try{
@@ -47,15 +50,18 @@ public class AddStaffBehaviour extends CyclicBehaviour {
                 e.printStackTrace();
                 block();
             }
+            //Match the operation stored in the protocol portion of the message, if it doesn't match put it back.
             if(!addStaffMsg.getProtocol().equals("add-staff")){
                 myAgent.putBack(addStaffMsg);
             }
 
+            //Check if staff is admin.
             boolean isStaffAuthorized = this.isStaffAuthorized(addStaffRequest.getUsername());
             boolean isAddSuccessful = false;
+            //If staff is authorized, then add the staff member.
             if(isStaffAuthorized){
                 try{
-                    isAddSuccessful = this.addStaff(addStaffRequest.getAddStaff());
+                    isAddSuccessful = this.addStaff(addStaffRequest.getAddStaff(), addStaffRequest.getRestaurantId());
                 }catch(Exception e){
                     e.printStackTrace();
                     isAddSuccessful = false;
@@ -88,15 +94,27 @@ public class AddStaffBehaviour extends CyclicBehaviour {
         block();
     }
 
-    public boolean addStaff(Staff newStaff){
+    public boolean addStaff(Staff newStaff, Long restaurantId){
+        //Get the staff repository as a dependency. Then search for the user to avoid copies.
         ApplicationContext context = SpringContextProvider.getApplicationContext();
         StaffRepository staffRepository = context.getBean(StaffRepository.class);
+        RestaurantRepository restaurantRepository = context.getBean(RestaurantRepository.class);
         Optional<Staff> staffToAdd = searchStaffByUsername(newStaff.getUsername());
+        //Get the restaurant from the restaurant database.
+        Optional<Restaurant> newStaffRestaurant = restaurantRepository.findById(restaurantId);
+        if(newStaffRestaurant.isEmpty()){
+            //We can't find the restaurant so we can't add the staff member.
+            return false;
+        }
+
         if(staffToAdd.isPresent()){
+            //if the username is not unique then stop.
             return false;
         }
         else if(staffToAdd.isEmpty()){
-            //Confirm this behaviour.
+            //set the restaurant.
+            newStaff.setRestaurant(newStaffRestaurant.get());
+            //If the staff username isn't in the database, then save the newstaff.
             staffRepository.save(newStaff);
             return true;
         }

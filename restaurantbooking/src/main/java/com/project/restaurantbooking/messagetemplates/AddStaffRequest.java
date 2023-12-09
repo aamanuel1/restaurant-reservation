@@ -16,4 +16,5 @@ public class AddStaffRequest implements Serializable {
     private String operation;
     private String username;
     private Staff addStaff;
+    private Long restaurantId;
 }

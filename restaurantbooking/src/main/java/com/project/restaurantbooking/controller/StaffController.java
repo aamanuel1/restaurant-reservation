@@ -47,8 +47,10 @@ public class StaffController extends Agent{
     }
 
     @PostMapping("api/v1/addstaff")
-    public CompletableFuture<AddStaffResponse> addStaff(@RequestParam String username, @RequestBody Staff newStaff){
-        return staffService.addStaff(username, newStaff);
+    public CompletableFuture<AddStaffResponse> addStaff(@RequestParam String username,
+                                                        @RequestParam Long restaurantId,
+                                                        @RequestBody Staff newStaff){
+        return staffService.addStaff(username, restaurantId, newStaff);
     }
 
     @PostMapping("api/v1/deletestaff")

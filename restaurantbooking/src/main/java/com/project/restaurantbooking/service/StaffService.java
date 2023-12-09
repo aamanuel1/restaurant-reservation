@@ -137,7 +137,7 @@ public class StaffService {
         return futureLoginResponse;
     }
 
-    public CompletableFuture<AddStaffResponse> addStaff(String username, Staff newStaff){
+    public CompletableFuture<AddStaffResponse> addStaff(String username, Long restaurantId, Staff newStaff){
         //Store the future request in the pending requests hashmap.
         CompletableFuture<AddStaffResponse> futureAddStaffResponse = new CompletableFuture<>();
         String requestId = this.storeRequest(futureAddStaffResponse);
@@ -148,6 +148,8 @@ public class StaffService {
         addStaffRequest.setOperation("add-staff");
         addStaffRequest.setUsername(username);
         addStaffRequest.setAddStaff(newStaff);
+        addStaffRequest.setRestaurantId(restaurantId);
+
         try{
             JadeGateway.execute(addStaffRequest);
         }catch(Exception e){

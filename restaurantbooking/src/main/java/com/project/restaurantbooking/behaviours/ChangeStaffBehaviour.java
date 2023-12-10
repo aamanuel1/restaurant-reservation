@@ -33,7 +33,6 @@ public class ChangeStaffBehaviour extends CyclicBehaviour {
     }
     @Override
     public void action() {
-        System.out.println("Change staff behaviour action start");
         ApplicationContext context = ApplicationContextProvider.getApplicationContext();
         staffAgentResponseChannel = context.getBean("StaffAgentReplyChannel", DirectChannel.class);
         ACLMessage changeStaffMsg = myAgent.receive(messageTemplate);
@@ -95,6 +94,8 @@ public class ChangeStaffBehaviour extends CyclicBehaviour {
             return false;
         }
 
+        //Do a check of the staff changes to make sure they're not empty/null.
+        //If they're null then that part of the RequestBody wasn't filled.
         if(staffAttributeChanges.getFirstName() != null){
             staffToChange.get().setFirstName(staffAttributeChanges.getFirstName());
         }
@@ -115,6 +116,7 @@ public class ChangeStaffBehaviour extends CyclicBehaviour {
 
     }
 
+    //Helper functions.
     public Optional<Staff> searchStaffByUsername(String username) {
         ApplicationContext context = SpringContextProvider.getApplicationContext();
         StaffRepository staffRepository = context.getBean(StaffRepository.class);

@@ -52,6 +52,20 @@ public class JadeConfiguration {
             );
             restaurantAgent.start();
 
+            AgentController customerAgent = jadeContainer.createNewAgent(
+                    "customerAgent",
+                    "com.project.restaurantbooking.agent.CustomerAgent",
+                    null
+            );
+            customerAgent.start();
+
+            AgentController recommendationAgent = jadeContainer.createNewAgent(
+                    "recommendationAgent",
+                    "com.project.restaurantbooking.agent.RecommendationAgent",
+                    null
+            );
+            recommendationAgent.start();
+
             // Initialize the GatewayAgent
 //            JadeGateway.init("com.project.restaurantbooking.agent.TheGatewayAgent", jadeProfile.getBootProperties());
 

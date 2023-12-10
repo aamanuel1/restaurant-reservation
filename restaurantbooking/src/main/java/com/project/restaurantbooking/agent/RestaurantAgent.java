@@ -33,6 +33,7 @@ public class RestaurantAgent extends Agent {
     protected FoodRepository foodRepository;
     protected WaitTimeRepository waitTimeRepository;
     protected CustomerRepository customerRepository;
+    protected ShiftRepository shiftRepository;
 
 //    public RestaurantAgent(FoodRepository foodRepository){
 //        this.foodRepository = foodRepository;
@@ -48,6 +49,8 @@ public class RestaurantAgent extends Agent {
         foodRepository = context.getBean(FoodRepository.class);
         waitTimeRepository = context.getBean(WaitTimeRepository.class);
         customerRepository = context.getBean(CustomerRepository.class);
+        shiftRepository = context.getBean(ShiftRepository.class);
+
 
         System.out.println("\n========= RestaurantAgent - setup - Context:"+ context+ "\n");
         // Register the restaurant-reservation service in the yellow pages
@@ -62,12 +65,8 @@ public class RestaurantAgent extends Agent {
         } catch (FIPAException fe) {
             fe.printStackTrace();
         }
-
         // Add behaviour to handle reservation requests
         addBehaviour(new ReservationRequestsServer());
-
-        // Add other behaviours as needed, for example, handling cancellations
-        // addBehaviour(new CancellationServer());
     }
 
 
@@ -75,7 +74,6 @@ public class RestaurantAgent extends Agent {
         private ReservationRequestsServer() {
 
         }
-
         @SneakyThrows
         @Override
         public void action() {
@@ -95,7 +93,6 @@ public class RestaurantAgent extends Agent {
 
                 String responseToGateway = null;
                 System.out.println("RestAgent: data "+ json.getJSONObject("data"));
-//                System.out.println("RestAgent: data "+ json.getJSONObject("data").getString("foodName"));
 
                 if (task.equals("inquire")) {
                     String foodName = json.getJSONObject("data").getString("foodName");
@@ -204,13 +201,26 @@ public class RestaurantAgent extends Agent {
             List<Restaurant> restaurantList = null;
             if (food != null) {
                 restaurantList = restaurantRepository.findRestaurantsByCuisine(food.getCuisine());
-//                System.out.println("RestAgent: restList "+ restaurantList);
+                if (!restaurantList.isEmpty()) {
+                    List<Shift> shiftList = shiftRepository.findByRestaurantId(restaurantList.get(0).getRestaurantId());
+                    if (shiftList.isEmpty()) {
+                        message = "No restaurant has open tables for the time you request";
+                        return String.format("""
+                    {
+                        "correlationId": "%s",
+                        "task": "%s",
+                        "food": %s,
+                        "message": %s
+                    }
+                    """, correlationId, task, foodJson.toString(), JSONObject.quote(message));
+                    }
+                }
+
                 message = foodName + " is available at the Restaurants listed below. Proceed to make your reservation.";
             } else {
                 message = foodName + " not available. The food you are looking for is not served by any of our Restaurants";
             }
             JSONArray restaurantListJson = (restaurantList != null) ? new JSONArray(restaurantList) : new JSONArray(); // Use an empty JSON array instead of null
-
             return String.format("""
                     {
                         "correlationId": "%s",
@@ -221,31 +231,6 @@ public class RestaurantAgent extends Agent {
                     }
                     """, correlationId, task, foodJson.toString(), JSONObject.quote(message), restaurantListJson.toString());
         }
-
-//        public String inquireAboutFood(String foodName, String responseToGateway, String correlationId, String task) {
-//            String message = null;
-//            Food food = foodRepository.findFoodByName(foodName);
-//            JSONObject foodJson = (food != null) ? new JSONObject(food) : null;
-//
-//            List<Restaurant> restaurantList = null;
-//            if (food != null) {
-//                restaurantList = restaurantRepository.findRestaurantsByCuisine(food.getCuisine());
-//                message = foodName + " is available at the Restaurants listed below. Proceed to make your reservation.";
-//            } else {
-//                message = foodName + " not available. The food you are look for is not served by any of our Restaurants";
-//            }
-//            JSONArray restaurantListJson = (restaurantList != null) ? new JSONArray(restaurantList) : null;
-//            responseToGateway = String.format("""
-//                    {
-//                        "correlationId": "%s",
-//                        "task": "%s",
-//                        "food": %s,
-//                        "message": "%s",
-//                        "restaurants": %s
-//                    }
-//                    """, correlationId, task, foodJson, message, restaurantListJson);
-//            return responseToGateway;
-//        }
 
         public String makeReservation(String foodName, String waitTimeString, String correlationId, String task, String customerEmail) {
             Customer customer = getCustomerInfo(customerEmail);

@@ -35,10 +35,6 @@ public class RestaurantAgent extends Agent {
     protected CustomerRepository customerRepository;
     protected ShiftRepository shiftRepository;
 
-//    public RestaurantAgent(FoodRepository foodRepository){
-//        this.foodRepository = foodRepository;
-//    }
-
 
     @Override
     protected void setup() {

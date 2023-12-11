@@ -554,6 +554,35 @@ public class StaffService {
         return result;
     }
 
+    public CompletableFuture<Object> selectShift(String username, Long shiftId){
+        String correlationId = UUID.randomUUID().toString();
+        AgentResponseHolder responseHolder = new AgentResponseHolder();
+        responseMap.put(correlationId, responseHolder);
+
+        String searchShiftMsgJson = String.format("""
+        {
+            "correlationId": "%s",
+            "targetAgent": "staffAgent",
+            "task": "select-shift",
+            "data": {
+                "username": "%s",
+                "shiftId": %d,
+            }
+        }
+        """, correlationId, username, shiftId);
+
+        System.out.println(searchShiftMsgJson);
+        AgentCommand returnAllShiftsCommand = new AgentCommand("staffAgent", searchShiftMsgJson, correlationId, "return-all-shifts");
+        try{
+            JadeGateway.execute(returnAllShiftsCommand);
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+
+        CompletableFuture<Object> result = returnAllShiftsCommand.getFutureResult();
+        return result;
+    }
+
     private String storeRequest(CompletableFuture<?> request){
         //private helper method for some of the Jackson DTO methods above.
         String requestId = UUID.randomUUID().toString();

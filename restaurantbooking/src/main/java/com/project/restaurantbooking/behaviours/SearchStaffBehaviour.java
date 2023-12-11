@@ -1,6 +1,7 @@
 package com.project.restaurantbooking.behaviours;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.hibernate5.jakarta.Hibernate5JakartaModule;
 import com.project.restaurantbooking.SpringContextProvider;
 import com.project.restaurantbooking.entity.Staff;
 import com.project.restaurantbooking.repo.StaffRepository;
@@ -27,6 +28,10 @@ public class SearchStaffBehaviour extends CyclicBehaviour {
     @Override
     public void action() {
         MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.INFORM);
+        Hibernate5JakartaModule module = new Hibernate5JakartaModule();
+        module.disable(Hibernate5JakartaModule.Feature.FORCE_LAZY_LOADING);
+        module.enable(Hibernate5JakartaModule.Feature.WRITE_MISSING_ENTITIES_AS_NULL);
+        jsonMapper.registerModule(module);
         ACLMessage msg = myAgent.receive(mt);
 
         if(msg != null){

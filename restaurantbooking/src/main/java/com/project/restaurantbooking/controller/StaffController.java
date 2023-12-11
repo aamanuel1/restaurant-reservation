@@ -220,4 +220,16 @@ public class StaffController extends Agent{
                     .body(CompletableFuture.completedFuture("Error searching for shifts."));
         }
     }
+
+    @PostMapping("api/v1/selectshift")
+    public ResponseEntity<CompletableFuture<Object>> selectShift(@RequestParam String username, @RequestParam Long shiftId){
+        try{
+            CompletableFuture<Object> returnAllShiftsResponse = this.staffService.selectShift(username, shiftId);
+            return ResponseEntity.ok(returnAllShiftsResponse);
+        }catch(Exception e){
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(CompletableFuture.completedFuture("Error searching for shifts."));
+        }
+    }
 }

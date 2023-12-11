@@ -106,12 +106,14 @@ public class SearchShiftsBehaviour extends CyclicBehaviour {
                     }                       
                     """, correlationId, task, shiftInfoJson);
             }
+
             //otherwise, put the message back and let another behaviour read it.
             else{
                 myAgent.putBack(msg);
                 block();
                 return;
             }
+
             //Send the message back to the Jade Gateway Agent.
             ACLMessage searchTablesReply = msg.createReply();
             System.out.println(searchShiftResultsToGateway);

@@ -6,6 +6,8 @@ import com.project.restaurantbooking.repo.*;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -162,6 +164,14 @@ public class DataBaseLoader implements CommandLineRunner {
                 new Staff("Second", "InCommand", "2ic", false, "password"));
 
 
+        Shift shift = Shift.builder()
+                .staff(staff1)
+                .date(LocalDate.now())
+                .startTime(LocalDateTime.now())
+                .endTime(LocalDateTime.now())
+                .table((tableRepository.findByRestaurantId(indianRestaurant.getRestaurantId())).get(0))
+                .build();
+        shiftRepository.save(shift);
     }
 
     private FavouriteFoods addFavouriteFood(Customer customer, Food food) {

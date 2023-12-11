@@ -48,6 +48,7 @@ public class StaffAgent extends Agent {
         addBehaviour(new CreateShiftBehaviour(this));
         addBehaviour(new DeleteShiftBehaviour(this));
         addBehaviour(new SearchShiftsBehaviour(this));
+        addBehaviour(new SelectShiftsBehaviour(this));
     }
 
     protected void takeDown(){
